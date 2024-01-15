@@ -58,11 +58,12 @@ export default async function log(statusCode: number, event) {
 			...trackEvents
 		};
 		console.log('log: ', JSON.stringify(logData));
-		const client = new Axiom({
-			token: AXIOM_TOKEN,
-			orgId: AXIOM_ORG_ID
-		});
-		client.ingest(AXIOM_DATASET, [logData]);
+		// TODO - 분석 기능 연결하기 (https://axiom.co/)
+		// const client = new Axiom({
+		// 	token: AXIOM_TOKEN,
+		// 	orgId: AXIOM_ORG_ID
+		// });
+		// await client.ingest(AXIOM_DATASET, [logData]);
 		/*	const analytics = new Analytics('695GiY4XhI9EcYjP');
 		analytics.identify({
 			userId: event?.locals?.user?.userId,
