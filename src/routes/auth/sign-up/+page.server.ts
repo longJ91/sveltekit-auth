@@ -67,6 +67,7 @@ export const actions = {
 			);
 		} catch (e) {
 			console.error(e);
+			setFlash({ type: 'error', message: 'Account was not able to be created.'}, event);
 			// email already in use
 			//might be other type of error but this is most common and this is how lucia docs sets the error to duplicate user
 			return setError(form, 'email', 'A user with that email already exists.');
