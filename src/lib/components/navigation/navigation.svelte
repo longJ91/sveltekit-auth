@@ -3,7 +3,21 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import * as Command from '$lib/components/ui/command';
 	import * as Avatar from '$lib/components/ui/avatar';
-	import { Sun, Moon, SunMoon, UserRound, LogOut } from 'lucide-svelte';
+	import {
+		Sun,
+		Moon,
+		SunMoon,
+		UserRound,
+		LogOut,
+		Contact2,
+		UserCircle2,
+		Lock,
+		Target,
+		Newspaper,
+		Image,
+		Link2,
+		Cat
+	} from 'lucide-svelte';
 	import { setMode, resetMode } from 'mode-watcher';
 	import { APP_NAME } from '$lib/config/constants';
 	import Logo from '$lib/components/logo/logo.svelte';
@@ -40,14 +54,34 @@
 			<nav class="flex gap-6">
 				<a
 					class="flex items-center text-sm font-medium text-muted-foreground"
-					href="/"
-					class:active={'/' === currentPage}>Home</a
+					href="/club"
+					class:active={'/club' === currentPage}>Club</a
 				>
+
 				<a
 					class="flex items-center text-sm font-medium text-muted-foreground"
-					href="/dashboard"
-					class:active={'/dashboard' === currentPage}>Protected</a
+					href="/notice"
+					class:active={'/notice' === currentPage}>Notice</a
 				>
+
+				<a
+					class="flex items-center text-sm font-medium text-muted-foreground"
+					href="/banner"
+					class:active={'/banner' === currentPage}>Banner</a
+				>
+
+				<a
+					class="flex items-center text-sm font-medium text-muted-foreground"
+					href="/club-event"
+					class:active={'/club-event' === currentPage}>Club Event</a
+				>
+
+				<a
+					class="flex items-center text-sm font-medium text-muted-foreground"
+					href="/item"
+					class:active={'/item' === currentPage}>Item</a
+				>
+
 			</nav>
 		</div>
 		<div class="flex flex-1 items-center justify-end space-x-4">
