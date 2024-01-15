@@ -5,6 +5,13 @@ import { auth } from '$lib/server/lucia';
 import { userSchema } from '$lib/config/zod-schemas';
 import { sendVerificationEmail } from '$lib/config/email-messages';
 
+import { LuciaError } from "lucia";
+import { generateRandomString } from "lucia/utils";
+
+const alphabet =
+	"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+
 const signUpSchema = userSchema.pick({
 	firstName: true,
 	lastName: true,
@@ -39,6 +46,7 @@ export const actions = {
 			const token = crypto.randomUUID();
 
 			const user = await auth.createUser({
+				userId: generateRandomString(15, alphabet),
 				key: {
 					providerId: 'email',
 					providerUserId: form.data.email.toLowerCase(),
@@ -51,8 +59,8 @@ export const actions = {
 					role: 'USER',
 					verified: false,
 					receiveEmail: true,
-					token: token
-				}
+					token: token,
+				},
 			});
 
 			await sendVerificationEmail(form.data.email, token);
@@ -66,6 +74,17 @@ export const actions = {
 				event
 			);
 		} catch (e) {
+			if (
+				e instanceof LuciaError &&
+				(e.message === "AUTH_INVALID_KEY_ID" ||
+					e.message === "AUTH_INVALID_PASSWORD")
+			) {
+				// user does not exist
+				// or invalid password
+				return fail(400, {
+					message: "Incorrect username or password"
+				});
+			}
 			console.error(e);
 			setFlash({ type: 'error', message: 'Account was not able to be created.'}, event);
 			// email already in use
