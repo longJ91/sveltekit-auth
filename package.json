@@ -75,7 +75,6 @@
 		"mode-watcher": "^0.1.2",
 		"nodemailer": "^6.9.7",
 		"svelte-sonner": "^0.3.11",
-		"tailwind-merge": "^2.1.0",
 		"tailwind-variants": "^0.1.18",
 		"vaul-svelte": "^0.0.6"
 	}
