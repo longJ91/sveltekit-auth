@@ -81,7 +81,6 @@
 					href="/item"
 					class:active={'/item' === currentPage}>Item</a
 				>
-
 			</nav>
 		</div>
 		<div class="flex flex-1 items-center justify-end space-x-4">

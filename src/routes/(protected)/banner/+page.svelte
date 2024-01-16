@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { invalidateAll } from '$app/navigation';
+	import { invalidateAll, goto } from '$app/navigation';
+	import { onMount } from 'svelte';
 
 	export let data;
 	let bannerInfo = data.bannerInfo;
@@ -12,13 +13,7 @@
 
 	const windowSize = bannerInfo.windowSize;
 
-	function handleCreate() {
-		history.replaceState({}, '', '/banner/create');
-		invalidateAll();
-	}
-
-	$: previousPage =
-		bannerInfo.currentPage < 2 ? 1 : bannerInfo.currentPage - 1;
+	$: previousPage = bannerInfo.currentPage < 2 ? 1 : bannerInfo.currentPage - 1;
 	$: nextPage =
 		bannerInfo.currentPage >= bannerInfo.totalPage
 			? bannerInfo.totalPage
@@ -43,7 +38,9 @@
 	<button
 		type="button"
 		class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-		on:click={handleCreate}>Create</button
+		on:click={() => goto('/banner/create', {
+			invalidateAll: true
+		})}>Create</button
 	>
 </div>
 
@@ -150,9 +147,7 @@
 					>{showingFirstIndex}-{showingLastIndex}</span
 				>
 				of
-				<span class="font-semibold text-gray-900 dark:text-white"
-					>{bannerInfo.totalCount}</span
-				>
+				<span class="font-semibold text-gray-900 dark:text-white">{bannerInfo.totalCount}</span>
 			{/if}
 		</span>
 		<ul class="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">

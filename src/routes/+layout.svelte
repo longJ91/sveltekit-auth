@@ -11,7 +11,7 @@
 	let user: Lucia.UserAttributes;
 	$: user = data.user;
 	const flash = getFlash(page);
-	//$: console.log('+layout.svelte root flash: ' + JSON.stringify($flash));
+	// $: console.log('+layout.svelte root flash: ' + JSON.stringify($flash));
 	$: if ($flash) {
 		switch ($flash.type) {
 			case 'success':
