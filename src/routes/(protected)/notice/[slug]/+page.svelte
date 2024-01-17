@@ -10,8 +10,7 @@
 	}
 
 	function handleCancel() {
-		history.replaceState({}, '', '/notice');
-		invalidateAll();
+		goto('/notice', { replaceState: true });
 	}
 </script>
 

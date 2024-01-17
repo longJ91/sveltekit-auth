@@ -14,8 +14,7 @@
 	}
 
 	function handleCancel() {
-		history.replaceState({}, '', '/banner');
-		invalidateAll();
+		goto('/banner', { replaceState: true });
 	}
 </script>
 

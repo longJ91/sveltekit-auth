@@ -12,8 +12,7 @@
 	}
 
 	function handleCancel() {
-		history.replaceState({}, '', '/club');
-		invalidateAll();
+		goto('/club', { replaceState: true });
 	}
 </script>
 

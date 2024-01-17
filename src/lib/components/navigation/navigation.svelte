@@ -81,6 +81,11 @@
 					href="/item"
 					class:active={'/item' === currentPage}>Item</a
 				>
+				<a
+					class="flex items-center text-sm font-medium text-muted-foreground"
+					href="/sample-table"
+					class:active={'/sample-table' === currentPage}>Sample Table</a
+				>
 			</nav>
 		</div>
 		<div class="flex flex-1 items-center justify-end space-x-4">

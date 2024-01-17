@@ -3,12 +3,18 @@ type Country = {
 	name: string;
 };
 
+type Area = {
+	code: string;
+	name: string;
+	parentCode: string;
+};
+
 type BannerExposure = {
 	id?: number;
 	bannerId?: number;
-	areaDepth: number;
-	areaCode: string;
-	userClass: string;
+	areaDepth?: number;
+	areaCode?: string;
+	userClass?: string;
 };
 
 type Banner = {
@@ -30,4 +36,4 @@ type BannerInfo = {
 	windowSize: number;
 };
 
-export type { Country, BannerExposure, Banner, BannerInfo };
+export type { Country, Area, BannerExposure, Banner, BannerInfo };
