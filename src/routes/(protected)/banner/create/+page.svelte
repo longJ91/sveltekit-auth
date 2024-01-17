@@ -6,7 +6,6 @@
 	import Label from '$lib/components/ui/label/label.svelte';
 	import * as Select from '$lib/components/ui/select';
 	import { Input } from '$lib/components/ui/input';
-	import { onMount } from 'svelte';
 
 	export let data;
 
@@ -888,6 +887,7 @@
 	$: depth3Objs = emptyAreas;
 	$: depth4Objs = emptyAreas;
 	$: userClassObjs = emptyString;
+	$: exposureCount = 0;
 
 	function handleToggle() {
 		status = !status;
@@ -901,6 +901,7 @@
 		depth3Objs = depth3Objs.concat([emptyArea]);
 		depth4Objs = depth4Objs.concat([emptyArea]);
 		userClassObjs = userClassObjs.concat('A,B,C,NONE');
+		exposureCount++;
 	}
 
 	function clickCountryButton(idx: number, countryCode: string) {
@@ -917,6 +918,7 @@
 		depth3Objs = depth3Objs.filter((value, idx) => idx != targetIdx);
 		depth4Objs = depth4Objs.filter((value, idx) => idx != targetIdx);
 		userClassObjs = userClassObjs.filter((value, idx) => idx != targetIdx);
+		exposureCount--;
 	}
 
 	function handleCancel() {
@@ -1069,7 +1071,7 @@
 			{/each}
 		</div>
 
-		<div class="h-10" />
+		<Input class="hidden" name='banner-exposure-count' bind:value={exposureCount}/>
 
 		<div class="flex justify-center">
 			<button
