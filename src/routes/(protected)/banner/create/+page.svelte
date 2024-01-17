@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Country, BannerExposure, Area } from '$lib/model/response-type';
-	import { invalidateAll, goto, replaceState } from '$app/navigation';
+	import { invalidateAll, goto } from '$app/navigation';
 	import { enhance } from '$app/forms';
 	import { Button } from '$lib/components/ui/button';
 	import Label from '$lib/components/ui/label/label.svelte';

@@ -1,5 +1,5 @@
-import type { Banner } from '$lib/model/response-type';
-import { clubURL, getHeaders } from '$lib/utils/request-util';
+import type { Banner, Country } from '$lib/model/response-type';
+import { apiURL, clubURL, getHeaders } from '$lib/utils/request-util';
 
 let banner: Banner;
 
@@ -11,9 +11,15 @@ export const load = async ({ params }: any) => {
 	});
 	banner = await res.json();
 
+	const countriesResponse: Response = await fetch(apiURL + '/v1/countries', {
+		method: 'GET',
+		headers: getHeaders()
+	});
+	const countries: Array<Country> = await countriesResponse.json();
 	return {
 		id: id,
-		banner: banner
+		banner: banner,
+		countries: countries
 	};
 };
 
@@ -33,7 +39,7 @@ export const actions = {
 		const res: Response = await fetch(clubURL + '/v1/admin/banners/' + banner.id, {
 			method: 'PUT',
 			headers: getHeaders(),
-			body: updateBanners,
+			body: updateBanners
 		});
 		await res.json();
 		return { success: true };

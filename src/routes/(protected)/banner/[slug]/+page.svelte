@@ -1,21 +1,82 @@
 <script lang="ts">
-	import type { Banner } from '$lib/model/response-type';
+	import type { Banner, BannerExposure, Country, Area } from '$lib/model/response-type';
 	import { invalidateAll, goto } from '$app/navigation';
 	import { enhance } from '$app/forms';
+	import { Button } from '$lib/components/ui/button';
+	import Label from '$lib/components/ui/label/label.svelte';
+	import { Input } from '$lib/components/ui/input';
+	import { onMount } from 'svelte';
 
 	export let data;
+
+	const countries: Array<Country> = data.countries;
 	const banner: Banner = data.banner;
+	const emptyBannerExposures: Array<BannerExposure> = [];
+	const emptyAreas: Array<Array<Area>> = [];
+	const emptyString: Array<String> = [];
+	const emptyArea: Area = {
+		code: 'empty',
+		name: 'empty',
+		parentCode: 'empty'
+	};
 
 	$: status = banner.status == 'ON' ? true : false;
+	$: depth2Objs = emptyBannerExposures;
+	$: depth3Objs = emptyAreas;
+	$: depth4Objs = emptyAreas;
+	$: userClassObjs = emptyString;
+	$: exposureCount = banner.bannerExposures.length;
 
 	function handleToggle() {
 		status = !status;
 		invalidateAll();
 	}
 
+	function addExposure() {
+		depth2Objs = depth2Objs.concat({
+			areaDepth: 2
+		});
+		depth3Objs = depth3Objs.concat([emptyArea]);
+		depth4Objs = depth4Objs.concat([emptyArea]);
+		userClassObjs = userClassObjs.concat('A,B,C,NONE');
+		exposureCount++;
+	}
+
+	function removeExposure(targetIdx: number) {
+		depth2Objs = depth2Objs.filter((value, idx) => idx != targetIdx);
+		depth3Objs = depth3Objs.filter((value, idx) => idx != targetIdx);
+		depth4Objs = depth4Objs.filter((value, idx) => idx != targetIdx);
+		userClassObjs = userClassObjs.filter((value, idx) => idx != targetIdx);
+		exposureCount--;
+	}
+
 	function handleCancel() {
 		goto('/banner', { replaceState: true });
 	}
+
+	onMount(() => {
+		for (let idx = 0; idx < exposureCount; idx++) {
+			const bannerExposure = banner.bannerExposures[idx];
+			const depth = bannerExposure.areaDepth;
+			depth2Objs = depth2Objs.concat({
+				areaDepth: 2
+			});
+			depth3Objs = depth3Objs.concat([emptyArea]);
+			depth4Objs = depth4Objs.concat([emptyArea]);
+			userClassObjs = userClassObjs.concat(
+				bannerExposure.userClass ? bannerExposure.userClass : ''
+			);
+
+			// if (depth == 4) {
+			// 	depth4Objs = depth4Objs.with(idx, {
+			// 		code: bannerExposure.areaCode,
+			// 		name: bannerExposure.
+			// 	})
+			// } else if (depth == 3) {
+			// } else if (depth == 2) {
+			// } else [];
+		}
+	});
 </script>
 
 <form
@@ -96,16 +157,23 @@
 					>
 				</label>
 			</div>
+
+			<div class="mb-6">
+				<Label for="exposure" class="block mb-4">Exposure</Label>
+				<Button on:click={addExposure}>추가</Button>
+			</div>
+
 			{#await data}
 				<p>...Loading</p>
 			{:then data}
 				{#each banner.bannerExposures as bannerExposure, idx}
 					<div class="mb-6">
-
 						{bannerExposure.areaDepth}
 						{bannerExposure.areaCode}
 						{bannerExposure.userClass}
-
+					</div>
+					<div class="flex flex-1 items-center justify-end">
+						<Button class="items-rigth" on:click={() => removeExposure(idx)}>X</Button>
 					</div>
 				{/each}
 			{:catch error}
@@ -113,7 +181,7 @@
 			{/await}
 		</div>
 
-		<div class="h-10" />
+		<Input class="hidden" name="banner-exposure-count" bind:value={exposureCount} />
 
 		<div class="flex justify-center">
 			<button
