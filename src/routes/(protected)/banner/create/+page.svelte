@@ -924,6 +924,13 @@
 	function handleCancel() {
 		goto('/banner', { replaceState: true });
 	}
+
+	async function temp() {
+		const res: Response = await fetch('/api/generate/upload-signed-urls', {
+			method: 'GET'
+		});
+		console.log(await res.json());
+	}
 </script>
 
 <form
@@ -950,6 +957,7 @@
 					for="thumbnail-url"
 					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Thumbnail Url</label
 				>
+				<Button on:click={temp}>추가</Button>
 				<input
 					type="text"
 					id="thumbnail-url"
@@ -1071,7 +1079,7 @@
 			{/each}
 		</div>
 
-		<Input class="hidden" name='banner-exposure-count' bind:value={exposureCount}/>
+		<Input class="hidden" name="banner-exposure-count" bind:value={exposureCount} />
 
 		<div class="flex justify-center">
 			<button

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { invalidateAll } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 
 	export let data: any;
 
@@ -12,7 +12,7 @@
 	const windowSize = data.noticeInfoResponse.windowSize;
 
 	function handleCreate() {
-		history.replaceState({}, '', '/notice/create');
+		goto('/notice/create');
 		invalidateAll();
 	}
 
