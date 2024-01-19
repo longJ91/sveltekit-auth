@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { goto, invalidateAll } from '$app/navigation';
+	import type { PageData } from './$types';
 
-	export let data: any;
+	export let data: PageData;
 
 	let pages: Array<number> = [];
 

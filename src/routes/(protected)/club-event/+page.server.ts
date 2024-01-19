@@ -1,13 +1,16 @@
 import { clubURL, getHeaders } from '$lib/utils/request-util';
+import type { PageServerLoad } from './$types';
 import type { ClubEvent } from './[slug]/+page.server';
 
 type ClubEventInfoResponse = {
 	clubEvents: Array<ClubEvent>;
 	totalPage: number;
 	currentPage: number;
+	totalCount: number;
+	windowSize: number;
 };
 
-export const load = async ({ url }: any) => {
+export const load: PageServerLoad = async ({ url }: any) => {
 	const page: string | undefined = url.searchParams.get('page');
 	const windowSize: string | undefined = url.searchParams.get('windowSize');
 	const createDate: string | undefined = url.searchParams.get('createDate');
