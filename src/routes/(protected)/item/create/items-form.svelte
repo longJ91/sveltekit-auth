@@ -5,6 +5,7 @@
 	export let form: SuperValidated<FormSchema>;
 </script>
 
+<!-- bind <-> {form} 차이는 상위 컴포넌트에서 공유를 하는지 여부가 다름 -->
 <Form.Root method="POST" {form} schema={formSchema} let:config class="w-2/3 space-y-6">
 	<Form.Field {config} name="url">
 		<Form.Item>
