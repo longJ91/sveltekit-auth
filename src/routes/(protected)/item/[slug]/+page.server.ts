@@ -1,3 +1,7 @@
+import type { PageServerLoad, Actions } from '../$types';
+import { fail, redirect } from '@sveltejs/kit';
+import { superValidate } from 'sveltekit-superforms/server';
+import { formSchema } from '../schema';
 import { clubURL, getHeaders } from '$lib/utils/request-util';
 
 export type Item = {
@@ -6,43 +10,50 @@ export type Item = {
 	price: number;
 	itemId: number;
 	createDate: Date;
-}
+};
 
 let item: Item;
 
-export const load = async ({ params }: any) => {
+export const load: PageServerLoad = async ({ params }: any) => {
 	const id: string = params.slug;
-	const res: Response = await fetch(clubURL+'/v1/admin/items/' + id, {
+	const form = await superValidate(formSchema);
+	const res: Response = await fetch(clubURL + '/v1/admin/items/' + id, {
 		method: 'GET',
 		headers: getHeaders()
 	});
 	item = await res.json();
-
+	form.data = {
+		url: item.imageUrl,
+		price: item.price.toString(),
+		itemId: item.itemId.toString()
+	};
 	return {
-		id: id,
-		item: item
+		id,
+		form
 	};
 };
 
-export const actions = {
-	default: async ({ cookies, request }: any) => {
-		const data = await request.formData();
-		const imageUrl = data.get('image-url');
-		const price = data.get('price');
-		const itemId = data.get('item-id');
-
+export const actions: Actions = {
+	default: async ({ request }: any) => {
+		const formData = await request.formData();
+		const form = await superValidate(formData, formSchema);
+		const url = formData.get('url');
+		if (!form.valid || !url) {
+			return fail(400, {
+				form
+			});
+		}
 		const updateItem: string = JSON.stringify({
-			imageUrl: imageUrl,
-			price: price,
-			itemId: itemId,
+			imageUrl: url,
+			price: form.data.price,
+			itemId: form.data.itemId
 		});
-
-		const res: Response = await fetch(clubURL+'/v1/admin/items/' + item.id, {
+		const res: Response = await fetch(clubURL + '/v1/admin/items/' + item.id, {
 			method: 'PUT',
 			headers: getHeaders(),
 			body: updateItem
 		});
 		await res.json();
-		return { success: true };
+		redirect(302, `/item`);
 	}
 };

@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { Button, buttonVariants } from '$lib/components/ui/button';
-	import { type FormSchema } from '../schema';
+	import { type FormSchema } from '../../../routes/(protected)/item/schema';
 	import type { SuperValidated } from 'sveltekit-superforms';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Label } from '$lib/components/ui/label';
 	import { toast } from 'svelte-sonner';
 	export let form: SuperValidated<FormSchema>;
+	export let serviceType: string;
 	let files: FileList;
 	$: dialogOpen = false;
-
+	
 	async function saveClickEvent() {
 		let jsonValue: Array<any> = [];
 
@@ -18,7 +19,7 @@
 				fileName: index.toString(),
 				fileExtension: file.type.split('/')[1],
 				mediaType: file.type,
-				serviceType: 'ADMIN_ITEM_IMAGE'
+				serviceType: serviceType
 			});
 		}
 		const res: Response = await fetch('/api/generate/upload-signed-urls', {

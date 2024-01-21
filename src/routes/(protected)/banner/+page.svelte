@@ -1,28 +1,27 @@
 <script lang="ts">
-	import { invalidateAll, goto } from '$app/navigation';
-	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
+	import type { PageData } from './$types';
 
-	export let data;
-	let bannerInfo = data.bannerInfo;
+	export let data: PageData;
 
 	let pages: Array<number> = [];
 
-	for (let i = 0; i < bannerInfo.totalPage; i++) {
+	for (let i = 0; i < data.bannerInfo.totalPage; i++) {
 		pages.push(i + 1);
 	}
 
-	const windowSize = bannerInfo.windowSize;
+	const windowSize = data.bannerInfo.windowSize;
 
-	$: previousPage = bannerInfo.currentPage < 2 ? 1 : bannerInfo.currentPage - 1;
+	$: previousPage = data.bannerInfo.currentPage < 2 ? 1 : data.bannerInfo.currentPage - 1;
 	$: nextPage =
-		bannerInfo.currentPage >= bannerInfo.totalPage
-			? bannerInfo.totalPage
-			: bannerInfo.currentPage + 1;
-	$: showingFirstIndex = 1 + (bannerInfo.currentPage - 1) * windowSize;
+		data.bannerInfo.currentPage >= data.bannerInfo.totalPage
+			? data.bannerInfo.totalPage
+			: data.bannerInfo.currentPage + 1;
+	$: showingFirstIndex = 1 + (data.bannerInfo.currentPage - 1) * windowSize;
 	$: showingLastIndex =
-		bannerInfo.currentPage == bannerInfo.totalPage
-			? bannerInfo.totalCount
-			: bannerInfo.currentPage * windowSize;
+		data.bannerInfo.currentPage == data.bannerInfo.totalPage
+			? data.bannerInfo.totalCount
+			: data.bannerInfo.currentPage * windowSize;
 </script>
 
 <div class="flex justify-center">
@@ -38,9 +37,10 @@
 	<button
 		type="button"
 		class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-		on:click={() => goto('/banner/create', {
-			invalidateAll: true
-		})}>Create</button
+		on:click={() =>
+			goto('/banner/create', {
+				invalidateAll: true
+			})}>Create</button
 	>
 </div>
 
@@ -94,7 +94,7 @@
 			{#await data}
 				<p>...Loading</p>
 			{:then data}
-				{#each bannerInfo.banners as banner, idx}
+				{#each data.bannerInfo.banners as banner, idx}
 					<tr
 						class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
 					>
@@ -140,14 +140,15 @@
 		<span
 			class="text-sm font-normal text-gray-500 dark:text-gray-400 mb-4 md:mb-0 block w-full md:inline md:w-auto"
 			>Showing
-			{#if bannerInfo.totalCount < 1}
+			{#if data.bannerInfo.totalCount < 1}
 				<span class="font-semibold text-gray-900 dark:text-white">0</span>
 			{:else}
 				<span class="font-semibold text-gray-900 dark:text-white"
 					>{showingFirstIndex}-{showingLastIndex}</span
 				>
 				of
-				<span class="font-semibold text-gray-900 dark:text-white">{bannerInfo.totalCount}</span>
+				<span class="font-semibold text-gray-900 dark:text-white">{data.bannerInfo.totalCount}</span
+				>
 			{/if}
 		</span>
 		<ul class="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
@@ -179,7 +180,7 @@
 				<p>...Loading</p>
 			{:then data}
 				{#each pages as page}
-					{#if page == bannerInfo.currentPage}
+					{#if page == data.bannerInfo.currentPage}
 						<li>
 							<a
 								href="/banner?page={page}&windowSize={windowSize}"
