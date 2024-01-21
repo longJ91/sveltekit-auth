@@ -5,7 +5,8 @@
 	import { getFlash } from 'sveltekit-flash-message';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import { toast } from 'svelte-sonner';
-	import Navigation from '$lib/components/navigation/navigation.svelte';
+	import HeaderNavigation from '$lib/components/navigation/header-navigation.svelte';
+	import SideNavigation from '$lib/components/navigation/aside-navigation.svelte';
 
 	export let data: any;
 	let user: Lucia.UserAttributes;
@@ -29,8 +30,11 @@
 <ModeWatcher />
 <Toaster richColors />
 <div class="relative flex min-h-screen flex-col">
-	<Navigation {user} />
-	<div class="mt-8 md:mt-12">
-		<slot />
+	<HeaderNavigation {user} />
+	<div class="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
+		<SideNavigation />
+		<div class="flex-1 lg:max-w-6xl pt-10">
+			<slot />
+		</div>
 	</div>
 </div>
