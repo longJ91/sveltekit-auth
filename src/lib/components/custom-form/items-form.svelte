@@ -2,16 +2,15 @@
 	import { goto } from '$app/navigation';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Form from '$lib/components/ui/form';
-	import { onMount } from 'svelte';
-	import { formSchema, type FormSchema } from '../../../routes/(protected)/item/schema';
+	import { itemSchema, type ItemSchema } from '$lib/config/zod-schemas';
 	import type { SuperValidated } from 'sveltekit-superforms';
-	export let form: SuperValidated<FormSchema>;
+	export let form: SuperValidated<ItemSchema>;
 	export let button: string;
 	$: url = form.data.url;
 </script>
 
 <!-- bind <-> {form} 차이는 상위 컴포넌트에서 공유를 하는지 여부가 다름 -->
-<Form.Root method="POST" {form} schema={formSchema} let:config class="w-2/3 space-y-6">
+<Form.Root method="POST" {form} schema={itemSchema} let:config class="w-2/3 space-y-6">
 	<Form.Field {config} name="url">
 		<Form.Item>
 			<Form.Label>Image URL</Form.Label>

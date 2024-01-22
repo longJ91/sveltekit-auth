@@ -1,12 +1,12 @@
 import type { PageServerLoad, Actions } from '../$types';
 import { fail, redirect } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms/server';
-import { formSchema } from '../schema';
+import { itemSchema } from '$lib/config/zod-schemas';
 import { clubURL, getHeaders } from '$lib/utils/request-util';
 
 export const load: PageServerLoad = async () => {
 	return {
-		form: await superValidate(formSchema)
+		form: await superValidate(itemSchema)
 	};
 };
 
@@ -15,7 +15,7 @@ export const load: PageServerLoad = async () => {
 export const actions: Actions = {
 	default: async ({ request }) => {
 		const formData = await request.formData();
-		const form = await superValidate(formData, formSchema);
+		const form = await superValidate(formData, itemSchema);
 		const url = formData.get('url');
 		if (!form.valid || !url) {
 			return fail(400, {

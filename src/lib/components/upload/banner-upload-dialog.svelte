@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { Button, buttonVariants } from '$lib/components/ui/button';
-	import type { ItemSchema } from '$lib/config/zod-schemas';
-	import type { SuperValidated } from 'sveltekit-superforms';
+	// import { type FormSchema } from '../../../routes/(protected)/item/schema';
+	// import type { SuperValidated } from 'sveltekit-superforms';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import { Label } from '$lib/components/ui/label';
 	import { toast } from 'svelte-sonner';
-	export let form: SuperValidated<ItemSchema>;
+	// export let form: SuperValidated<FormSchema>;
+	export let thumbnailUrl: string;
 	export let serviceType: string;
 	let files: FileList;
 	$: dialogOpen = false;
@@ -32,7 +33,7 @@
 		const signedUrls: Array<any> = await res.json();
 		const { fileUrl, uploadSignedUrl } = signedUrls[0];
 		const response = await upload(uploadSignedUrl, files[0]);
-		form.data.url = fileUrl;
+		thumbnailUrl = fileUrl;
 		closeAndToast();
 	}
 

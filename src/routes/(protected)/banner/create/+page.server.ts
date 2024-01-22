@@ -25,36 +25,33 @@ export const actions = {
 		let bannerExposures: Array<BannerExposure> = [];
 
 		for (let idx = 0; idx < exposureCount; idx++) {
-			const conturyCode: string | undefined = data.get(idx + '-depth2');
-			const depth3: string | undefined = data.get(idx + '-depth3');
-			const depth4: string | undefined = data.get(idx + '-depth4');
+			const conturyCode: string | undefined = data.get(idx + '-country-code');
+			const cityAreaCode: string | undefined = data.get(idx + '-city-area-code');
+			const districtAreaCode: string | undefined = data.get(idx + '-district-area-code');
 			const userClass: string | undefined = data.get(idx + '-user-class');
 
 			let bannerExposure: BannerExposure = {};
 
-			if (depth4) {
-				bannerExposure.areaDepth = 4;
-				bannerExposure.areaCode = depth4;
-				bannerExposure.userClass = userClass;
-			} else if (depth3) {
-				bannerExposure.areaDepth = 3;
-				bannerExposure.areaCode = depth3;
-				bannerExposure.userClass = userClass;
+			bannerExposure.userClass = userClass;
+			if (districtAreaCode) {
+				bannerExposure.districtAreaCode = districtAreaCode;
+				bannerExposure.cityAreaCode = cityAreaCode;
+				bannerExposure.countryCode = conturyCode;
+			} else if (cityAreaCode) {
+				bannerExposure.cityAreaCode = cityAreaCode;
+				bannerExposure.countryCode = conturyCode;
 			} else if (conturyCode) {
-				bannerExposure.areaDepth = 2;
-				bannerExposure.areaCode = conturyCode;
-				bannerExposure.userClass = userClass;
+				bannerExposure.countryCode = conturyCode;
 			} else {
-				bannerExposure.areaDepth = undefined;
-				bannerExposure.areaCode = undefined;
-				bannerExposure.userClass = userClass;
+				bannerExposure.countryCode = undefined;
+				bannerExposure.cityAreaCode = undefined;
+				bannerExposure.districtAreaCode = undefined;
 			}
-
 			bannerExposures.push(bannerExposure);
 		}
 
 		const createBanner: string = JSON.stringify({
-			thumbnailUrffl: thumbnailUrl,
+			thumbnailUrl: thumbnailUrl,
 			linkUrl: linkUrl,
 			status: status,
 			bannerExposures: bannerExposures

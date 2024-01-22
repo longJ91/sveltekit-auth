@@ -54,3 +54,33 @@ export const userUpdatePasswordSchema = userSchema
 	});
 
 export type UserUpdatePasswordSchema = typeof userUpdatePasswordSchema;
+
+export const bannerExposureSchema = z.object({
+	id: z.number(),
+	bannerId: z.string(),
+	countryCode: z.string(),
+	cityAreaCode: z.string(),
+	districtAreaCode: z.string(),
+	userClass: z.string()
+});
+
+export const bannerSchema = z.object({
+	id: z.number(),
+	thumbnailUrl: z.string(),
+	linkUrl: z.string(),
+	status: z.enum(['ON', 'OFF'], { required_error: 'Status is required' }),
+	sequence: z.number(),
+	bannerExposures: z.array(bannerExposureSchema, {
+		errorMap: () => ({ message: 'You must add the exposure' })
+	})
+});
+
+export type BannerSchema = typeof bannerSchema;
+
+export const itemSchema = z.object({
+	url: z.string(),
+	price: z.string().min(1),
+	itemId: z.string().min(1)
+});
+
+export type ItemSchema = typeof itemSchema;

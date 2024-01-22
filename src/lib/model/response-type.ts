@@ -12,8 +12,9 @@ type Area = {
 type BannerExposure = {
 	id?: number;
 	bannerId?: number;
-	areaDepth?: number;
-	areaCode?: string;
+	countryCode?: string;
+	cityAreaCode?: string;
+	districtAreaCode?: string;
 	userClass?: string;
 };
 
