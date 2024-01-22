@@ -10,7 +10,7 @@ export const load = async ({ params }: any) => {
 	});
 	const countries: Array<Country> = await res.json();
 	return {
-		countries: countries
+		countries
 	};
 };
 

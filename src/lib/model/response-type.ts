@@ -4,9 +4,9 @@ type Country = {
 };
 
 type Area = {
-	code: string;
+	code?: string;
 	name: string;
-	parentCode: string;
+	parentCode?: string;
 };
 
 type BannerExposure = {

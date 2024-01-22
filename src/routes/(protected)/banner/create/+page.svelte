@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Country, BannerExposure, Area } from '$lib/model/response-type';
+	import type { Country, Area } from '$lib/model/response-type';
 	import { invalidateAll, goto } from '$app/navigation';
 	import { enhance } from '$app/forms';
 	import { Button } from '$lib/components/ui/button';
@@ -89,6 +89,7 @@
 	method="POST"
 	use:enhance={({ formElement, formData, action, cancel }) => {
 		formData.set('status', status ? 'ON' : 'OFF');
+		formData.set('thumbnail-url', thumbnailUrl);
 		return async ({ result }) => {
 			// `result` is an `ActionResult` object
 			if (result.type === 'redirect') {
@@ -109,16 +110,17 @@
 					for="thumbnail-url"
 					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Thumbnail Url</label
 				>
-				<ImageUploadDialog bind:thumbnailUrl {serviceType} />
 				<input
 					type="text"
 					id="thumbnail-url"
 					name="thumbnail-url"
 					bind:value={thumbnailUrl}
+					disabled
 					class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
 					placeholder="Write your thoughts here..."
 				/>
 				<img class="h-100 max-w-lg rounded-lg" src={thumbnailUrl} alt="" />
+				<ImageUploadDialog bind:thumbnailUrl {serviceType} />
 			</div>
 			<div class="mb-6">
 				<label for="link-url" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"

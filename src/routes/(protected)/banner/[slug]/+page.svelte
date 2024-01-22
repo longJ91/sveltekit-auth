@@ -1,31 +1,52 @@
 <script lang="ts">
-	import type { Banner, BannerExposure, Country, Area } from '$lib/model/response-type';
+	import type { Banner, Country, Area } from '$lib/model/response-type';
 	import { invalidateAll, goto } from '$app/navigation';
 	import { enhance } from '$app/forms';
 	import { Button } from '$lib/components/ui/button';
 	import Label from '$lib/components/ui/label/label.svelte';
+	import * as Select from '$lib/components/ui/select';
 	import { Input } from '$lib/components/ui/input';
+	import ImageUploadDialog from '$lib/components/upload/banner-upload-dialog.svelte';
 	import { onMount } from 'svelte';
+
+	const serviceType = 'ADMIN_BANNER_THUMBNAIL';
 
 	export let data;
 
 	const countries: Array<Country> = data.countries;
 	const banner: Banner = data.banner;
-	const emptyBannerExposures: Array<BannerExposure> = [];
-	const emptyAreas: Array<Array<Area>> = [];
-	const emptyString: Array<String> = [];
-	const emptyArea: Area = {
-		code: 'empty',
-		name: 'empty',
-		parentCode: 'empty'
-	};
 
 	$: status = banner.status == 'ON' ? true : false;
-	$: depth2Objs = emptyBannerExposures;
-	$: depth3Objs = emptyAreas;
-	$: depth4Objs = emptyAreas;
-	$: userClassObjs = emptyString;
+	$: thumbnailUrl = '';
+	$: exposureGroup = data.exposureGroup;
 	$: exposureCount = banner.bannerExposures.length;
+
+	const fetchCityAreas = async (idx: number, countryCode?: string) => {
+		const response: Response = await fetch('/api/areas?countryCode=' + countryCode, {
+			method: 'GET',
+			headers: {
+				'content-type': 'application/json'
+			}
+		});
+		const result: Array<Area> = await response.json();
+		exposureGroup[idx].cityAreaGroup = [...result];
+		exposureGroup = exposureGroup.with(idx, exposureGroup[idx]);
+	};
+
+	const fetchDistirctAraes = async (idx: number, arae: Area) => {
+		const response: Response = await fetch(
+			'/api/areas?countryCode=' + arae.parentCode + '&areaCode=' + arae.code,
+			{
+				method: 'GET',
+				headers: {
+					'content-type': 'application/json'
+				}
+			}
+		);
+		const result: Array<Area> = await response.json();
+		exposureGroup[idx].districtAreaGroup = [...result];
+		exposureGroup = exposureGroup.with(idx, exposureGroup[idx]);
+	};
 
 	function handleToggle() {
 		status = !status;
@@ -33,49 +54,69 @@
 	}
 
 	function addExposure() {
-		depth2Objs = depth2Objs.concat({
-			areaDepth: 2
+		exposureGroup = exposureGroup.concat({
+			countyGroup: countries,
+			cityAreaGroup: [],
+			districtAreaGroup: [],
+			userClass: 'A,B,C,NONE'
 		});
-		depth3Objs = depth3Objs.concat([emptyArea]);
-		depth4Objs = depth4Objs.concat([emptyArea]);
-		userClassObjs = userClassObjs.concat('A,B,C,NONE');
-		exposureCount++;
+	}
+
+	function seleteCountry(idx: number, countryCode: string) {
+		fetchCityAreas(idx, countryCode);
+	}
+
+	function selectCityArea(idx: number, cityArea: Area) {
+		fetchDistirctAraes(idx, cityArea);
 	}
 
 	function removeExposure(targetIdx: number) {
-		depth2Objs = depth2Objs.filter((value, idx) => idx != targetIdx);
-		depth3Objs = depth3Objs.filter((value, idx) => idx != targetIdx);
-		depth4Objs = depth4Objs.filter((value, idx) => idx != targetIdx);
-		userClassObjs = userClassObjs.filter((value, idx) => idx != targetIdx);
-		exposureCount--;
+		exposureGroup = exposureGroup.filter((value, idx) => idx != targetIdx);
 	}
 
 	function handleCancel() {
 		goto('/banner', { replaceState: true });
 	}
 
-	onMount(() => {
-		for (let idx = 0; idx < exposureCount; idx++) {
-			const bannerExposure = banner.bannerExposures[idx];
-			const depth = bannerExposure.areaDepth;
-			depth2Objs = depth2Objs.concat({
-				areaDepth: 2
-			});
-			depth3Objs = depth3Objs.concat([emptyArea]);
-			depth4Objs = depth4Objs.concat([emptyArea]);
-			userClassObjs = userClassObjs.concat(
-				bannerExposure.userClass ? bannerExposure.userClass : ''
-			);
+	function selectedCountry(idx: number) {
+		const countryCode: string = banner.bannerExposures[idx].countryCode!;
+		const name: string = exposureGroup[idx].countyGroup
+			.filter((v) => v.code == countryCode)
+			.map((v) => v.name)[0];
+		return {
+			value: countryCode,
+			label: name
+		};
+	}
 
-			// if (depth == 4) {
-			// 	depth4Objs = depth4Objs.with(idx, {
-			// 		code: bannerExposure.areaCode,
-			// 		name: bannerExposure.
-			// 	})
-			// } else if (depth == 3) {
-			// } else if (depth == 2) {
-			// } else [];
-		}
+	function selectedCityArea(idx: number) {
+		const cityAreaCode: string = banner.bannerExposures[idx].cityAreaCode!;
+
+		const name: string = exposureGroup[idx].cityAreaGroup
+			.filter((v) => v.code == cityAreaCode)
+			.map((v) => v.name)[0];
+
+		return {
+			value: cityAreaCode,
+			label: name
+		};
+	}
+
+	function selectedDistrictArea(idx: number) {
+		const districtAreaCode: string = banner.bannerExposures[idx].districtAreaCode!;
+		const name: string = exposureGroup[idx].districtAreaGroup
+			.filter((v) => v.code == districtAreaCode)
+			.map((v) => v.name)[0];
+
+		return {
+			value: districtAreaCode,
+			label: name
+		};
+	}
+
+	onMount(() => {
+		thumbnailUrl = banner.thumbnailUrl;
+		console.log(banner.thumbnailUrl);
 	});
 </script>
 
@@ -83,6 +124,7 @@
 	method="POST"
 	use:enhance={({ formElement, formData, action, cancel }) => {
 		formData.set('status', status ? 'ON' : 'OFF');
+		formData.set('thumbnail-url', thumbnailUrl);
 		return async ({ result }) => {
 			// `result` is an `ActionResult` object
 			if (result.type === 'redirect') {
@@ -99,7 +141,7 @@
 				<dt class="mb-1 text-gray-500 md:text-lg dark:text-gray-400">ID</dt>
 				<dd class="text-lg font-semibold">{banner.id}</dd>
 			</div>
-			<div class="mb-6">
+			<div class="mb-6 space-y-4">
 				<label
 					for="thumbnail-url"
 					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Thumbnail Url</label
@@ -108,9 +150,12 @@
 					type="text"
 					id="thumbnail-url"
 					name="thumbnail-url"
-					value={banner.thumbnailUrl}
+					value={thumbnailUrl}
+					disabled
 					class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
 				/>
+				<img class="h-100 max-w-lg rounded-lg" src={thumbnailUrl} alt="" />
+				<ImageUploadDialog bind:thumbnailUrl {serviceType} />
 			</div>
 			<div class="mb-6">
 				<label for="link-url" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
@@ -162,23 +207,69 @@
 				<Label for="exposure" class="block mb-4">Exposure</Label>
 				<Button on:click={addExposure}>추가</Button>
 			</div>
+			{#each exposureGroup as exposure, idx}
+				<div class="mb-4">
+					<div class="flex gap-4">
+						<Select.Root portal={null} preventScroll={false} selected={selectedCountry(idx)}>
+							<Select.Trigger class="w-[260px]">
+								<Select.Value placeholder="Country" />
+							</Select.Trigger>
+							<Select.Content>
+								<Select.Group>
+									{#each exposure.countyGroup as country}
+										<Select.Item
+											value={country.code}
+											label={country.name}
+											on:click={() => seleteCountry(idx, country.code)}>{country.name}</Select.Item
+										>
+									{/each}
+								</Select.Group>
+							</Select.Content>
+							<Select.Input name={idx + '-country-code'} />
+						</Select.Root>
 
-			{#await data}
-				<p>...Loading</p>
-			{:then data}
-				{#each banner.bannerExposures as bannerExposure, idx}
-					<div class="mb-6">
-						{bannerExposure.areaDepth}
-						{bannerExposure.areaCode}
-						{bannerExposure.userClass}
+						<Select.Root portal={null} preventScroll={false} selected={selectedCityArea(idx)}>
+							<Select.Trigger class="w-[300px]">
+								<Select.Value placeholder="City Area" />
+							</Select.Trigger>
+							<Select.Content>
+								<Select.Group>
+									{#each exposure.cityAreaGroup as cityArea}
+										<Select.Item
+											value={cityArea.code}
+											label={cityArea.name}
+											on:click={() => selectCityArea(idx, cityArea)}>{cityArea.name}</Select.Item
+										>
+									{/each}
+								</Select.Group>
+							</Select.Content>
+							<Select.Input name={idx + '-city-area-code'} />
+						</Select.Root>
+
+						<Select.Root portal={null} preventScroll={false} selected={selectedDistrictArea(idx)}>
+							<Select.Trigger class="w-[300px]">
+								<Select.Value placeholder="District Area" />
+							</Select.Trigger>
+							<Select.Content>
+								<Select.Group>
+									{#each exposure.districtAreaGroup as districtArea}
+										<Select.Item value={districtArea.code} label={districtArea.name}
+											>{districtArea.name}</Select.Item
+										>
+									{/each}
+								</Select.Group>
+							</Select.Content>
+							<Select.Input name={idx + '-district-area-code'} />
+						</Select.Root>
+
+						<Input class="w-[300px]" name={idx + '-user-class'} bind:value={exposure.userClass} />
+
+						<div class="flex flex-1 items-center justify-end">
+							<Button class="items-rigth" on:click={() => removeExposure(idx)}>X</Button>
+						</div>
 					</div>
-					<div class="flex flex-1 items-center justify-end">
-						<Button class="items-rigth" on:click={() => removeExposure(idx)}>X</Button>
-					</div>
-				{/each}
-			{:catch error}
-				<p>오류가 발생했습니다.</p>
-			{/await}
+				</div>
+			{/each}
 		</div>
 
 		<Input class="hidden" name="banner-exposure-count" bind:value={exposureCount} />
