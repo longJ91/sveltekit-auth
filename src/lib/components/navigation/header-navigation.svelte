@@ -32,13 +32,13 @@
 </script>
 
 <header class="bg-background sticky top-0 z-40 w-full border-b">
-	<div class="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
-		<div class="flex gap-6 md:gap-10">
+	<div class="flex justify-evenly h-16 sm:space-x-0">
+		<div class="flex gap-6 md:gap-10 px-8">
 			<a class="flex items-center space-x-2" href="/"
 				><Logo size="24"></Logo><span class="inline-block font-bold">{APP_NAME}</span></a
 			>
 		</div>
-		<div class="flex flex-1 items-center justify-end space-x-4">
+		<div class="flex flex-1 items-center justify-end space-x-4 px-8">
 			<nav class="flex items-center space-x-1">
 				{#if !user}
 					<Button on:click={() => goto('/auth/sign-in')}>Sign in</Button>

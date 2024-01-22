@@ -33,7 +33,7 @@
 	<HeaderNavigation {user} />
 	<div class="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
 		<SideNavigation />
-		<div class="flex-1 lg:max-w-6xl pt-10">
+		<div class="flex-1 w-1/6 pt-10">
 			<slot />
 		</div>
 	</div>

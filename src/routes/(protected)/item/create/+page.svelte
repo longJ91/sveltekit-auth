@@ -8,7 +8,7 @@
 	const button = 'Create';
 </script>
 
-<div class="w-9/12 container flex items-center space-x-6 sm:justify-between">
+<div class="w-9/12 container flex flex-col items-center space-x-6 sm:justify-between">
 	<ImageUploadDialog bind:form {serviceType} />
 	<ItemsForm bind:form {button} />
 </div>

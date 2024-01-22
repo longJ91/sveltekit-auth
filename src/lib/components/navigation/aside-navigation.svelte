@@ -19,8 +19,8 @@
 	$: currentPage = $page.url.pathname;
 </script>
 
-<aside class="-mx-4 lg:w-1/6">
-	<nav class="flex items-start space-x-2 lg:flex-col lg:space-x-4 lg:space-y-1">
+<aside class="-mx-4 lg:w-1/6 max-w-52">
+	<nav class="flex items-start space-x-2 lg:flex-col lg:space-x-4 lg:space-y-4 px-4">
 		<h4
 			class="inline-flex items-center rounded-md text-xl font-medium whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:text-accent-foreground h-9 px-4 py-2 relative justify-start hover:bg-transparent"
 		></h4>
