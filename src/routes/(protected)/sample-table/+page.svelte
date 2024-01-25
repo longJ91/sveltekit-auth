@@ -15,49 +15,29 @@
 	import { cn } from '$lib/utils';
 	import { Input } from '$lib/components/ui/input';
 	import DataTableCheckbox from './data-table-checkbox.svelte';
-	import { ArrowUpDown, ChevronDown } from 'lucide-svelte';
+	import { ArrowUpDown, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-svelte';
+	import * as Pagination from '$lib/components/ui/pagination';
+
+	import { mediaQuery } from 'svelte-legos';
+
+	const isDesktop = mediaQuery('(min-width: 768px)');
+	let count = 20;
+	$: perPage = $isDesktop ? 3 : 8;
+	$: siblingCount = $isDesktop ? 1 : 0;
 
 	type Payment = {
 		id: string;
 		amount: number;
 		status: 'Pending' | 'Processing' | 'Success' | 'Failed';
 		email: string;
+		name: string;
 	};
 
-	const data: Payment[] = [
-		{
-			id: 'm5gr84i9',
-			amount: 316,
-			status: 'Success',
-			email: 'ken99@yahoo.com'
-		},
-		{
-			id: '3u1reuv4',
-			amount: 242,
-			status: 'Success',
-			email: 'Abe45@gmail.com'
-		},
-		{
-			id: 'derv1ws0',
-			amount: 837,
-			status: 'Processing',
-			email: 'Monserrat44@gmail.com'
-		},
-		{
-			id: '5kma53ae',
-			amount: 874,
-			status: 'Success',
-			email: 'Silas22@gmail.com'
-		},
-		{
-			id: 'bhqecj4p',
-			amount: 721,
-			status: 'Failed',
-			email: 'carmella@hotmail.com'
-		}
-	];
+	export let data: any;
 
-	const table = createTable(readable(data), {
+	const payments: Payment[] = data.payments;
+
+	const table = createTable(readable(payments), {
 		sort: addSortBy({ disableMultiSort: true }),
 		page: addPagination(),
 		filter: addTableFilter({
@@ -111,6 +91,18 @@
 			}
 		}),
 		table.column({
+			header: 'Name',
+			accessor: 'name',
+			cell: ({ value }) => value.toLowerCase(),
+			plugins: {
+				filter: {
+					getFilterValue(value) {
+						return value.toLowerCase();
+					}
+				}
+			}
+		}),
+		table.column({
 			header: 'Amount',
 			accessor: 'amount',
 			cell: ({ value }) => {
@@ -125,7 +117,7 @@
 					disable: true
 				},
 				filter: {
-					exclude: true
+					exclude: false
 				}
 			}
 		}),
@@ -133,7 +125,7 @@
 			header: '',
 			accessor: ({ id }) => id,
 			cell: (item) => {
-				return createRender(Actions, { id: item.value });
+				return createRender(Actions, { id: item.value, name: 'item' });
 			},
 			plugins: {
 				sort: {
@@ -161,11 +153,14 @@
 
 	const { selectedDataIds } = pluginStates.select;
 
-	const hideableCols = ['status', 'email', 'amount'];
+	const hideableCols = ['status', 'email', 'amount', 'name'];
 </script>
 
 <div class="w-9/12 container flex items-center space-x-4 sm:justify-between">
 	<div class="container">
+		<div class="flex justify-center text-6xl">
+			<p>Table</p>
+		</div>
 		<div class="flex items-center py-4">
 			<Input
 				class="max-w-sm"
@@ -203,7 +198,8 @@
 												<div class="text-right font-medium">
 													<Render of={cell.render()} />
 												</div>
-											{:else if cell.id === 'email'}
+											<!-- 필터 적용시 사용 -->
+											{:else if cell.id === 'name'}
 												<Button variant="ghost" on:click={props.sort.toggle}>
 													<Render of={cell.render()} />
 													<ArrowUpDown
@@ -250,7 +246,7 @@
 				</Table.Body>
 			</Table.Root>
 		</div>
-		<div class="flex items-center justify-end space-x-2 py-4">
+		<!-- <div class="flex items-center justify-end space-x-2 py-4">
 			<div class="flex-1 text-sm text-muted-foreground">
 				{Object.keys($selectedDataIds).length} of{' '}
 				{$rows.length} row(s) selected.
@@ -267,6 +263,37 @@
 				disabled={!$hasNextPage}
 				on:click={() => ($pageIndex = $pageIndex + 1)}>Next</Button
 			>
+		</div> -->
+		<div class="flex space-x-2 py-4">
+			<Pagination.Root class="items-end" {count} {perPage} {siblingCount} let:pages let:currentPage>
+				<Pagination.Content>
+					<Pagination.Item>
+						<Pagination.PrevButton>
+							<ChevronLeft class="h-4 w-4" />
+							<span class="hidden sm:block">Previous</span>
+						</Pagination.PrevButton>
+					</Pagination.Item>
+					{#each pages as page (page.key)}
+						{#if page.type === 'ellipsis'}
+							<Pagination.Item>
+								<Pagination.Ellipsis />
+							</Pagination.Item>
+						{:else}
+							<Pagination.Item>
+								<Pagination.Link {page} isActive={currentPage == page.value}>
+									{page.value}
+								</Pagination.Link>
+							</Pagination.Item>
+						{/if}
+					{/each}
+					<Pagination.Item>
+						<Pagination.NextButton>
+							<span class="hidden sm:block">Next</span>
+							<ChevronRight class="h-4 w-4" />
+						</Pagination.NextButton>
+					</Pagination.Item>
+				</Pagination.Content>
+			</Pagination.Root>
 		</div>
 	</div>
 </div>

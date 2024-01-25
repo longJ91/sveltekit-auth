@@ -2,7 +2,10 @@
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { Button } from '$lib/components/ui/button';
 	import { MoreHorizontal } from 'lucide-svelte';
+	import { goto } from '$app/navigation';
 	export let id: string;
+	export let name: string;
+	const path: string = '/' + name + '/' + id;
 </script>
 
 <DropdownMenu.Root>
@@ -16,11 +19,15 @@
 		<DropdownMenu.Group>
 			<DropdownMenu.Label>Actions</DropdownMenu.Label>
 			<DropdownMenu.Item on:click={() => navigator.clipboard.writeText(id)}>
-				Copy payment ID
+				Copy ID
 			</DropdownMenu.Item>
 		</DropdownMenu.Group>
 		<DropdownMenu.Separator />
-		<DropdownMenu.Item>View customer</DropdownMenu.Item>
-		<DropdownMenu.Item>View payment details</DropdownMenu.Item>
+		<DropdownMenu.Item
+			on:click={() =>
+				goto(path, {
+					invalidateAll: true
+				})}>View details</DropdownMenu.Item
+		>
 	</DropdownMenu.Content>
 </DropdownMenu.Root>
