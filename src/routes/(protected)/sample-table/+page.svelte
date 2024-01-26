@@ -19,6 +19,7 @@
 	import * as Pagination from '$lib/components/ui/pagination';
 
 	import { mediaQuery } from 'svelte-legos';
+	import type { PageData } from './$types';
 
 	const isDesktop = mediaQuery('(min-width: 768px)');
 	let count = 20;

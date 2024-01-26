@@ -1,7 +1,7 @@
 export type PromotionCardSchedule = {
 	id: number;
 	countryCode: string;
-	type: string;
+	type: 'EVENT' | 'COMPETITION';
 	category: string;
     title: string;
 	startDate: Date;
