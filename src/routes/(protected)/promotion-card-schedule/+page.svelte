@@ -25,16 +25,20 @@
 
 	export let data: any;
 
+	const initPageSize = 1;
+
 	const promotionCardSchedules: PromotionCardSchedule[] =
 		data.promotionCardScheduleInfoResponse.promotionCardSchedules;
 
-	let count = data.promotionCardScheduleInfoResponse.totalCount;
-	$: perPage = $isDesktop ? 3 : 8;
+	$: count = data.promotionCardScheduleInfoResponse.totalCount;
+	// $: perPage = data.promotionCardScheduleInfoResponse.windowSize;
+	$: perPage = initPageSize;
+	$: page = 1;
 	$: siblingCount = $isDesktop ? 1 : 0;
 
 	const table = createTable(readable(promotionCardSchedules), {
 		sort: addSortBy({ disableMultiSort: true }),
-		page: addPagination(),
+		page: addPagination({ initialPageIndex: 0, initialPageSize: initPageSize }),
 		filter: addTableFilter({
 			fn: ({ filterValue, value }) => value.includes(filterValue)
 		}),
@@ -125,36 +129,12 @@
 		.filter(([, hide]) => !hide)
 		.map(([id]) => id);
 
-	const { hasNextPage, hasPreviousPage, pageIndex } = pluginStates.page;
+	const { hasNextPage, hasPreviousPage, pageIndex, pageSize } = pluginStates.page;
 	const { filterValue } = pluginStates.filter;
 
 	const { selectedDataIds } = pluginStates.select;
 
 	const hideableCols = ['id', 'title', 'type', 'category', 'startDate', 'endDate', 'isDisplay'];
-
-	let pages: Array<number> = [];
-
-	for (let i = 0; i < data.promotionCardScheduleInfoResponse.totalPage; i++) {
-		pages.push(i + 1);
-	}
-
-	// const windowSize = data.promotionCardScheduleInfoResponse.windowSize;
-
-	// $: previousPage =
-	// 	data.promotionCardScheduleInfoResponse.currentPage < 2
-	// 		? 1
-	// 		: data.promotionCardScheduleInfoResponse.currentPage - 1;
-	// $: nextPage =
-	// 	data.promotionCardScheduleInfoResponse.currentPage >=
-	// 	data.promotionCardScheduleInfoResponse.totalPage
-	// 		? data.promotionCardScheduleInfoResponse.totalPage
-	// 		: data.promotionCardScheduleInfoResponse.currentPage + 1;
-	// $: showingFirstIndex = 1 + (data.promotionCardScheduleInfoResponse.currentPage - 1) * windowSize;
-	// $: showingLastIndex =
-	// 	data.promotionCardScheduleInfoResponse.currentPage ==
-	// 	data.promotionCardScheduleInfoResponse.totalPage
-	// 		? data.promotionCardScheduleInfoResponse.totalCount
-	// 		: data.promotionCardScheduleInfoResponse.currentPage * windowSize;
 </script>
 
 <div class="w-9/12 container flex items-center space-x-4 sm:justify-between">
@@ -239,10 +219,48 @@
 			</Table.Root>
 		</div>
 		<div class="flex space-x-2 py-4">
-			<Pagination.Root class="items-end" {count} {perPage} {siblingCount} let:pages let:currentPage>
+			<div class="flex flex-row items-center space-x-4">
+				<p>Show</p>
+				<DropdownMenu.Root>
+					<DropdownMenu.Trigger asChild let:builder>
+						<Button variant="outline" class="ml-auto" builders={[builder]}>
+							{$pageSize}
+						</Button>
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content>
+						<DropdownMenu.RadioGroup bind:value={$pageSize}>
+							<DropdownMenu.RadioItem value="1" on:click={() => ($pageIndex = 0)}
+								>1</DropdownMenu.RadioItem
+							>
+							<DropdownMenu.RadioItem value="2" on:click={() => ($pageIndex = 0)}
+								>2</DropdownMenu.RadioItem
+							>
+							<DropdownMenu.RadioItem value="5" on:click={() => ($pageIndex = 0)}
+								>5</DropdownMenu.RadioItem
+							>
+							<DropdownMenu.RadioItem value="10" on:click={() => ($pageIndex = 0)}
+								>10</DropdownMenu.RadioItem
+							>
+							<DropdownMenu.RadioItem value="20" on:click={() => ($pageIndex = 0)}
+								>20</DropdownMenu.RadioItem
+							>
+						</DropdownMenu.RadioGroup>
+					</DropdownMenu.Content>
+				</DropdownMenu.Root>
+				<p>rows</p>
+			</div>
+			<Pagination.Root
+				class="items-end"
+				{count}
+				bind:perPage={$pageSize}
+				{siblingCount}
+				{page}
+				let:pages
+				let:currentPage
+			>
 				<Pagination.Content>
 					<Pagination.Item>
-						<Pagination.PrevButton>
+						<Pagination.PrevButton on:click={() => ($pageIndex = $pageIndex - 1)}>
 							<ChevronLeft class="h-4 w-4" />
 							<span class="hidden sm:block">Previous</span>
 						</Pagination.PrevButton>
@@ -254,14 +272,18 @@
 							</Pagination.Item>
 						{:else}
 							<Pagination.Item>
-								<Pagination.Link {page} isActive={currentPage == page.value}>
+								<Pagination.Link
+									{page}
+									isActive={currentPage == page.value}
+									on:click={() => ($pageIndex = page.value - 1)}
+								>
 									{page.value}
 								</Pagination.Link>
 							</Pagination.Item>
 						{/if}
 					{/each}
 					<Pagination.Item>
-						<Pagination.NextButton>
+						<Pagination.NextButton on:click={() => ($pageIndex = $pageIndex + 1)}>
 							<span class="hidden sm:block">Next</span>
 							<ChevronRight class="h-4 w-4" />
 						</Pagination.NextButton>

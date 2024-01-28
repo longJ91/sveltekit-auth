@@ -12,7 +12,8 @@ type PromotionCardScheduleInfoResponse = {
 
 export const load: PageServerLoad = async ({ url }: any) => {
 	const page: string | undefined = url.searchParams.get('page');
-	const windowSize: string | undefined = url.searchParams.get('windowSize');
+	// const windowSize: string | undefined = url.searchParams.get('windowSize');
+	const windowSize: number = 9999;
 	const status: string | undefined = url.searchParams.get('status');
 	const createDate: string | undefined = url.searchParams.get('createDate');
 	let queryParams: string = '?';
