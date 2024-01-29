@@ -25,20 +25,16 @@
 
 	export let data: any;
 
-	const initPageSize = 1;
-
 	const promotionCardSchedules: PromotionCardSchedule[] =
 		data.promotionCardScheduleInfoResponse.promotionCardSchedules;
 
 	$: count = data.promotionCardScheduleInfoResponse.totalCount;
-	// $: perPage = data.promotionCardScheduleInfoResponse.windowSize;
-	$: perPage = initPageSize;
 	$: page = 1;
 	$: siblingCount = $isDesktop ? 1 : 0;
 
 	const table = createTable(readable(promotionCardSchedules), {
 		sort: addSortBy({ disableMultiSort: true }),
-		page: addPagination({ initialPageIndex: 0, initialPageSize: initPageSize }),
+		page: addPagination({ initialPageIndex: 0, initialPageSize: 2 }),
 		filter: addTableFilter({
 			fn: ({ filterValue, value }) => value.includes(filterValue)
 		}),
@@ -228,68 +224,90 @@
 						</Button>
 					</DropdownMenu.Trigger>
 					<DropdownMenu.Content>
-						<DropdownMenu.RadioGroup bind:value={$pageSize}>
-							<DropdownMenu.RadioItem value="1" on:click={() => ($pageIndex = 0)}
-								>1</DropdownMenu.RadioItem
+						<DropdownMenu.RadioGroup>
+							<DropdownMenu.RadioItem
+								value="1"
+								on:click={() => {
+									$pageIndex = 0;
+									$pageSize = 1;
+								}}>1</DropdownMenu.RadioItem
 							>
-							<DropdownMenu.RadioItem value="2" on:click={() => ($pageIndex = 0)}
-								>2</DropdownMenu.RadioItem
+							<DropdownMenu.RadioItem
+								value="2"
+								on:click={() => {
+									$pageIndex = 0;
+									$pageSize = 2;
+								}}>2</DropdownMenu.RadioItem
 							>
-							<DropdownMenu.RadioItem value="5" on:click={() => ($pageIndex = 0)}
-								>5</DropdownMenu.RadioItem
+							<DropdownMenu.RadioItem
+								value="5"
+								on:click={() => {
+									$pageIndex = 0;
+									$pageSize = 5;
+								}}>5</DropdownMenu.RadioItem
 							>
-							<DropdownMenu.RadioItem value="10" on:click={() => ($pageIndex = 0)}
-								>10</DropdownMenu.RadioItem
+							<DropdownMenu.RadioItem
+								value="10"
+								on:click={() => {
+									$pageIndex = 0;
+									$pageSize = 10;
+								}}>10</DropdownMenu.RadioItem
 							>
-							<DropdownMenu.RadioItem value="20" on:click={() => ($pageIndex = 0)}
-								>20</DropdownMenu.RadioItem
+							<DropdownMenu.RadioItem
+								value="20"
+								on:click={() => {
+									$pageIndex = 0;
+									$pageSize = 20;
+								}}>20</DropdownMenu.RadioItem
 							>
 						</DropdownMenu.RadioGroup>
 					</DropdownMenu.Content>
 				</DropdownMenu.Root>
 				<p>rows</p>
 			</div>
-			<Pagination.Root
-				class="items-end"
-				{count}
-				bind:perPage={$pageSize}
-				{siblingCount}
-				{page}
-				let:pages
-				let:currentPage
-			>
-				<Pagination.Content>
-					<Pagination.Item>
-						<Pagination.PrevButton on:click={() => ($pageIndex = $pageIndex - 1)}>
-							<ChevronLeft class="h-4 w-4" />
-							<span class="hidden sm:block">Previous</span>
-						</Pagination.PrevButton>
-					</Pagination.Item>
-					{#each pages as page (page.key)}
-						{#if page.type === 'ellipsis'}
-							<Pagination.Item>
-								<Pagination.Ellipsis />
-							</Pagination.Item>
-						{:else}
-							<Pagination.Item>
-								<Pagination.Link
-									{page}
-									isActive={currentPage == page.value}
-									on:click={() => ($pageIndex = page.value - 1)}
-								>
-									{page.value}
-								</Pagination.Link>
-							</Pagination.Item>
-						{/if}
-					{/each}
-					<Pagination.Item>
-						<Pagination.NextButton on:click={() => ($pageIndex = $pageIndex + 1)}>
-							<span class="hidden sm:block">Next</span>
-							<ChevronRight class="h-4 w-4" />
-						</Pagination.NextButton>
-					</Pagination.Item>
-				</Pagination.Content>
-			</Pagination.Root>
+			{#key $pageSize}
+				<Pagination.Root
+					class="items-end"
+					{count}
+					perPage={$pageSize}
+					{siblingCount}
+					{page}
+					let:pages
+					let:currentPage
+				>
+					<Pagination.Content>
+						<Pagination.Item>
+							<Pagination.PrevButton on:click={() => ($pageIndex = $pageIndex - 1)}>
+								<ChevronLeft class="h-4 w-4" />
+								<span class="hidden sm:block">Previous</span>
+							</Pagination.PrevButton>
+						</Pagination.Item>
+						{#each pages as page (page.key)}
+							{#if page.type === 'ellipsis'}
+								<Pagination.Item>
+									<Pagination.Ellipsis />
+								</Pagination.Item>
+							{:else}
+								<Pagination.Item>
+									<Pagination.Link
+										{page}
+										isActive={currentPage == page.value}
+										on:click={() => ($pageIndex = page.value - 1)}
+									>
+										{page.value}
+									</Pagination.Link>
+								</Pagination.Item>
+							{/if}
+						{/each}
+						<Pagination.Item>
+							<Pagination.NextButton on:click={() => ($pageIndex = $pageIndex + 1)}>
+								<span class="hidden sm:block">Next</span>
+								<ChevronRight class="h-4 w-4" />
+							</Pagination.NextButton>
+						</Pagination.Item>
+					</Pagination.Content>
+				</Pagination.Root>
+			{/key}
 		</div>
 	</div>
 </div>
