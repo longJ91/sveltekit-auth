@@ -28,15 +28,13 @@ export const actions: Actions = {
 				form
 			});
 		}
-		const startDateISO8601 = new Date(form.data.startDate).toISOString();
-		const endDateISO8601 = new Date(form.data.endDate).toISOString();
 		const createPromotinCard: string = JSON.stringify({
 			countryCode: form.data.countryCode,
 			type: form.data.type,
 			category: form.data.category,
 			title: form.data.title,
-			startDate: startDateISO8601,
-			endDate: endDateISO8601,
+			startDate: form.data.startDate,
+			endDate: form.data.endDate,
 			isDisplay: form.data.isDisplay,
 			linkUrl: form.data.linkUrl,
 			backgroundImageUrl: form.data.backgroundImageUrl,

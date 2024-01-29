@@ -14,7 +14,7 @@
 	export let countries: Array<Country>;
 	export let button: string;
 	export let serviceType: string;
-	$: url = '';
+	$: url = form.data.symbolImageUrl;
 </script>
 
 <!-- bind <-> {form} 차이는 상위 컴포넌트에서 공유를 하는지 여부가 다름 -->
