@@ -84,3 +84,21 @@ export const itemSchema = z.object({
 });
 
 export type ItemSchema = typeof itemSchema;
+
+export const promotionCardScheduleSchema = z.object({
+	id: z.number(),
+	countryCode: z.string({ required_error: 'Country Code is required' }),
+	type: z.enum(['EVENT', 'COMPETITION'], { required_error: 'Type is required' }),
+	category: z.string({ required_error: 'Category is required' }),
+	title: z.string({ required_error: 'Title is required' }),
+	startDate: z.string(),
+	endDate: z.string(),
+	isDisplay: z.boolean({ required_error: 'Display is required' }),
+	linkUrl: z.string(),
+	backgroundImageUrl: z.string(),
+	symbolImageUrl: z.string(),
+	pushType: z.string().nullable(),
+	pushValue: z.string().nullable()
+});
+
+export type PromotionCardScheduleSchema = typeof promotionCardScheduleSchema;
