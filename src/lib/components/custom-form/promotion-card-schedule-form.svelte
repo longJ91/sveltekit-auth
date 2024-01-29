@@ -14,7 +14,6 @@
 	export let countries: Array<Country>;
 	export let button: string;
 	export let serviceType: string;
-	$: url = form.data.symbolImageUrl;
 </script>
 
 <!-- bind <-> {form} 차이는 상위 컴포넌트에서 공유를 하는지 여부가 다름 -->
@@ -114,13 +113,12 @@
 			<Form.Validation />
 		</Form.Item>
 	</Form.Field>
-	{#if url == ''}
-		<ImageUploadDialog bind:url {serviceType} />
-	{/if}
+	<ImageUploadDialog bind:url={form.data.symbolImageUrl} {serviceType} />
 	<Form.Field {config} name="symbolImageUrl">
 		<Form.Item>
 			<Form.Label>Symbol Image Url</Form.Label>
-			<Form.Input type="text" bind:value={url} />
+			<Form.Input type="text" value={form.data.symbolImageUrl} />
+
 			<Form.Description>This is symbolImage url.</Form.Description>
 			<Form.Validation />
 		</Form.Item>
