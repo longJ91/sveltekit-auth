@@ -39,10 +39,12 @@ export const load = async ({ params }: any) => {
 		else countryCodes = countryCodes.concat(',', clubEventCountry.countryCode);
 	});
 
+	console.log(clubEvent.createDate);
+
 	return {
-		id: id,
-		clubEvent: clubEvent,
-		countryCodes: countryCodes
+		id,
+		clubEvent,
+		countryCodes
 	};
 };
 
