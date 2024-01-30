@@ -111,7 +111,19 @@ export const clubSchema = z.object({
 	description: z.string(),
 	status: z.string(),
 	// ISO8601 Date
-	createDate: z.string(),
+	createDate: z.string()
 });
 
 export type ClubSchema = typeof clubSchema;
+
+export const noticeSchema = z.object({
+	id: z.number(),
+	title: z.string(),
+	content: z.string(),
+	// ISO8601 Date
+	createDate: z.string(),
+	// ISO8601 Date
+	updateDate: z.string()
+});
+
+export type NoticeSchema = typeof noticeSchema;

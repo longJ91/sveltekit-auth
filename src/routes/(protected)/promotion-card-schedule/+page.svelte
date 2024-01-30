@@ -96,7 +96,7 @@
 			plugins: { sort: { disable: true }, filter: { exclude: true } }
 		}),
 		table.column({
-			header: '',
+			header: 'Actions',
 			accessor: ({ id }) => id,
 			cell: (item) => {
 				return createRender(Actions, {

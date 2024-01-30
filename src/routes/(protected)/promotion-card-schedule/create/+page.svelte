@@ -1,4 +1,3 @@
-<!-- <ImageUploadDialog bind:thumbnailUrl {serviceType} /> -->
 <script lang="ts">
 	import type { Country } from '$lib/model/response-type';
 	import type { PageData } from './$types';

@@ -49,6 +49,5 @@ export const actions: Actions = {
 		});
 		await res.json();
 		redirect(302, `/promotion-card-schedule`);
-		return { success: true };
 	}
 };
