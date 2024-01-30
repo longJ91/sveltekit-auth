@@ -54,7 +54,7 @@ export const load = async ({ params }: any) => {
 			countyGroup: countries,
 			cityAreaGroup: [],
 			districtAreaGroup: [],
-			userClass: 'A,B,C,NONE'
+			userClass: banner.bannerExposures[index].userClass!,
 		});
 		await fetchCityAreas(index, banner.bannerExposures[index].countryCode);
 		const area: Area = {
