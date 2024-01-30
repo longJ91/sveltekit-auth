@@ -19,7 +19,7 @@
 	$: status = banner.status == 'ON' ? true : false;
 	$: thumbnailUrl = '';
 	$: exposureGroup = data.exposureGroup;
-	$: exposureCount = banner.bannerExposures.length;
+	$: exposureCount = data.exposureGroup.length;
 
 	const fetchCityAreas = async (idx: number, countryCode?: string) => {
 		const response: Response = await fetch('/api/areas?countryCode=' + countryCode, {
@@ -49,11 +49,13 @@
 
 	function addExposure() {
 		exposureGroup = exposureGroup.concat({
+			id: exposureGroup[exposureGroup.length - 1].id + 1,
 			countyGroup: countries,
 			cityAreaGroup: [],
 			districtAreaGroup: [],
 			userClass: 'A,B,C,NONE'
 		});
+		exposureCount++;
 	}
 
 	function seleteCountry(idx: number, countryCode: string) {
@@ -66,6 +68,10 @@
 
 	function removeExposure(targetIdx: number) {
 		exposureGroup = exposureGroup.filter((value, idx) => idx != targetIdx);
+		if (banner.bannerExposures[targetIdx]) {
+			banner.bannerExposures = banner.bannerExposures.filter((value, idx) => idx != targetIdx);
+		}
+		exposureCount--;
 	}
 
 	function handleCancel() {
@@ -73,44 +79,61 @@
 	}
 
 	function selectedCountry(idx: number) {
-		const countryCode: string = banner.bannerExposures[idx].countryCode!;
-		const name: string = exposureGroup[idx].countyGroup
-			.filter((v) => v.code == countryCode)
-			.map((v) => v.name)[0];
-		return {
-			value: countryCode,
-			label: name
-		};
+		if (banner.bannerExposures[idx]) {
+			const countryCode: string = banner.bannerExposures[idx].countryCode!;
+			const name: string = exposureGroup[idx].countyGroup
+				.filter((v) => v.code == countryCode)
+				.map((v) => v.name)[0];
+			return {
+				value: countryCode,
+				label: name
+			};
+		} else {
+			return {
+				value: undefined,
+				label: undefined
+			};
+		}
 	}
 
 	function selectedCityArea(idx: number) {
-		const cityAreaCode: string = banner.bannerExposures[idx].cityAreaCode!;
-
-		const name: string = exposureGroup[idx].cityAreaGroup
-			.filter((v) => v.code == cityAreaCode)
-			.map((v) => v.name)[0];
-
-		return {
-			value: cityAreaCode,
-			label: name
-		};
+		if (banner.bannerExposures[idx]) {
+			const cityAreaCode: string = banner.bannerExposures[idx].cityAreaCode!;
+			const name: string = exposureGroup[idx].cityAreaGroup
+				.filter((v) => v.code == cityAreaCode)
+				.map((v) => v.name)[0];
+			return {
+				value: cityAreaCode,
+				label: name
+			};
+		} else {
+			return {
+				value: undefined,
+				label: undefined
+			};
+		}
 	}
 
 	function selectedDistrictArea(idx: number) {
-		const districtAreaCode: string = banner.bannerExposures[idx].districtAreaCode!;
-		const name: string = exposureGroup[idx].districtAreaGroup
-			.filter((v) => v.code == districtAreaCode)
-			.map((v) => v.name)[0];
-
-		return {
-			value: districtAreaCode,
-			label: name
-		};
+		if (banner.bannerExposures[idx]) {
+			const districtAreaCode: string = banner.bannerExposures[idx].districtAreaCode!;
+			const name: string = exposureGroup[idx].districtAreaGroup
+				.filter((v) => v.code == districtAreaCode)
+				.map((v) => v.name)[0];
+			return {
+				value: districtAreaCode,
+				label: name
+			};
+		} else {
+			return {
+				value: undefined,
+				label: undefined
+			};
+		}
 	}
 
 	onMount(() => {
 		thumbnailUrl = banner.thumbnailUrl;
-		console.log(banner.thumbnailUrl);
 	});
 </script>
 
@@ -201,7 +224,8 @@
 				<Label for="exposure" class="block mb-4">Exposure</Label>
 				<Button on:click={addExposure}>추가</Button>
 			</div>
-			{#each exposureGroup as exposure, idx}
+
+			{#each exposureGroup as exposure, idx (exposure.id)}
 				<div class="mb-4">
 					<div class="flex gap-4">
 						<Select.Root portal={null} preventScroll={false} selected={selectedCountry(idx)}>

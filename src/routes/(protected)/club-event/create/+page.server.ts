@@ -54,8 +54,6 @@ export const actions = {
 			countryCodes: countryCodes
 		});
 
-		console.log(createClubEvent);
-
 		const res: Response = await fetch(clubURL + '/v1/admin/club-events', {
 			method: 'POST',
 			headers: getHeaders(),

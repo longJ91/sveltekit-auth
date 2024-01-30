@@ -42,7 +42,6 @@ export const actions: Actions = {
 			pushType: form.data.pushType,
 			pushValue: form.data.pushValue
 		});
-		console.log(createPromotinCard);
 		const res: Response = await fetch(clubURL + '/v1/admin/promotion-card-schedules', {
 			method: 'POST',
 			headers: getHeaders(),

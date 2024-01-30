@@ -2,6 +2,7 @@ import type { Banner, BannerExposure, Country, Area } from '$lib/model/response-
 import { apiURL, clubURL, getHeaders } from '$lib/utils/request-util';
 
 type Exposure = {
+	id: number;
 	countyGroup: Array<Country>;
 	cityAreaGroup: Array<Area>;
 	districtAreaGroup: Array<Area>;
@@ -51,10 +52,11 @@ export const load = async ({ params }: any) => {
 	for (let index = 0; index < banner.bannerExposures.length; index++) {
 		if (index == 0) exposureGroup = [];
 		exposureGroup = exposureGroup.concat({
+			id: index,
 			countyGroup: countries,
 			cityAreaGroup: [],
 			districtAreaGroup: [],
-			userClass: banner.bannerExposures[index].userClass!,
+			userClass: banner.bannerExposures[index].userClass!
 		});
 		await fetchCityAreas(index, banner.bannerExposures[index].countryCode);
 		const area: Area = {
@@ -114,7 +116,7 @@ export const actions = {
 			status: status,
 			bannerExposures: bannerExposures
 		});
-		
+
 		const res: Response = await fetch(clubURL + '/v1/admin/banners/' + banner.id, {
 			method: 'PUT',
 			headers: getHeaders(),
