@@ -1,15 +1,19 @@
 import { clubURL, getHeaders } from '$lib/utils/request-util';
+import type { PageServerLoad } from './$types';
 import type { Club } from './[slug]/+page.server';
 
 type ClubInfoResponse = {
 	clubs: Array<Club>;
 	totalPage: number;
 	currentPage: number;
+	totalCount: number;
+	windowSize: number;
 };
 
-export const load = async ({ url }: any) => {
+export const load: PageServerLoad = async ({ url }: any) => {
 	const page: string | undefined = url.searchParams.get('page');
-	const windowSize: string | undefined = url.searchParams.get('windowSize');
+	// const windowSize: string | undefined = url.searchParams.get('windowSize');
+	const windowSize: number = 9999;
 	const status: string | undefined = url.searchParams.get('status');
 	const createDate: string | undefined = url.searchParams.get('createDate');
 	let queryParams: string = '?';
@@ -23,7 +27,6 @@ export const load = async ({ url }: any) => {
 		headers: getHeaders()
 	});
 	const item: ClubInfoResponse = await res.json();
-
 	return {
 		clubInfoResponse: item
 	};

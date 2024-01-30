@@ -9,7 +9,7 @@
 	} from 'svelte-headless-table/plugins';
 	import { readable } from 'svelte/store';
 	import * as Table from '$lib/components/ui/table';
-	import Actions from './data-table-actions.svelte';
+	import Actions from '$lib/components/table/data-table-actions.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
 	import { cn } from '$lib/utils';
