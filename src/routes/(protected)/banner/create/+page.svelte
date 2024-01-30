@@ -24,10 +24,7 @@
 
 	const fetchCityAreas = async (idx: number, countryCode: string) => {
 		const response: Response = await fetch('/api/areas?countryCode=' + countryCode, {
-			method: 'GET',
-			headers: {
-				'content-type': 'application/json'
-			}
+			method: 'GET'
 		});
 		const result: Array<Area> = await response.json();
 		exposureGroup[idx].cityAreaGroup = [...result];
@@ -38,10 +35,7 @@
 		const response: Response = await fetch(
 			'/api/areas?countryCode=' + arae.parentCode + '&areaCode=' + arae.code,
 			{
-				method: 'GET',
-				headers: {
-					'content-type': 'application/json'
-				}
+				method: 'GET'
 			}
 		);
 		const result: Array<Area> = await response.json();
@@ -68,8 +62,8 @@
 		});
 	}
 
-	function seleteCountry(idx: number, countryCode: string) {
-		fetchCityAreas(idx, countryCode);
+	async function seleteCountry(idx: number, countryCode: string) {
+		await fetchCityAreas(idx, countryCode);
 	}
 
 	function selectCityArea(idx: number, cityArea: Area) {
@@ -176,7 +170,8 @@
 										<Select.Item
 											value={country.code}
 											label={country.name}
-											on:click={() => seleteCountry(idx, country.code)}>{country.name}</Select.Item
+											on:click={async () => await seleteCountry(idx, country.code)}
+											>{country.name}</Select.Item
 										>
 									{/each}
 								</Select.Group>

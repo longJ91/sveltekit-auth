@@ -1,6 +1,6 @@
 {
 	"name": "dartsmate-admin",
-	"version": "0.1.7",
+	"version": "0.1.9",
 	"private": true,
 	"config": {
 		"imageName": "dartsmate-admin",
