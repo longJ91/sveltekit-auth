@@ -23,10 +23,7 @@
 
 	const fetchCityAreas = async (idx: number, countryCode?: string) => {
 		const response: Response = await fetch('/api/areas?countryCode=' + countryCode, {
-			method: 'GET',
-			headers: {
-				'content-type': 'application/json'
-			}
+			method: 'GET'
 		});
 		const result: Array<Area> = await response.json();
 		exposureGroup[idx].cityAreaGroup = [...result];
@@ -37,10 +34,7 @@
 		const response: Response = await fetch(
 			'/api/areas?countryCode=' + arae.parentCode + '&areaCode=' + arae.code,
 			{
-				method: 'GET',
-				headers: {
-					'content-type': 'application/json'
-				}
+				method: 'GET'
 			}
 		);
 		const result: Array<Area> = await response.json();
