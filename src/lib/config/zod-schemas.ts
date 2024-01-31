@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { object, z } from 'zod';
 
 export const userSchema = z.object({
 	firstName: z
@@ -127,3 +127,32 @@ export const noticeSchema = z.object({
 });
 
 export type NoticeSchema = typeof noticeSchema;
+
+export const clubEventCountry = z.object({
+	id: z.number(),
+	clubEventId: z.number(),
+	countryCode: z.string(),
+	createDate: z.date(),
+	updateDate: z.date()
+});
+
+export const clubEventSchema = z.object({
+	id: z.number(),
+	name: z.string(),
+	description: z.string(),
+	gamecode: z.number(),
+	shopType: z.string(),
+	startDate: z.string(),
+	endDate: z.string(),
+	registerFrom: z.string(),
+	registerTo: z.string(),
+	useYn: z.boolean(),
+	body: z.string(),
+	// ISO8601 Date
+	createDate: z.string(),
+	// ISO8601 Date
+	updateDate: z.string(),
+	// countries: z.array(clubEventCountry)
+});
+
+export type ClubEventSchema = typeof clubEventSchema;

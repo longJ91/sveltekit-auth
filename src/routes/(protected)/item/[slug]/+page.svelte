@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
-	import ItemsForm from '$lib/components/custom-form/items-form.svelte';
+	import ItemsForm from '$lib/components/custom-form/item-form.svelte';
 	export let data: PageData;
 	$: form = data.form;
 	const serviceType="ADMIN_ITEM_IMAGE"

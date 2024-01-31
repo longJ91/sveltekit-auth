@@ -23,8 +23,8 @@ export const actions: Actions = {
 		}
 		const { title, content } = form.data;
 		const createNotice: string = JSON.stringify({
-			title: title,
-			content: content
+			title,
+			content
 		});
 		const res: Response = await fetch(clubURL + '/v1/admin/notices', {
 			method: 'POST',

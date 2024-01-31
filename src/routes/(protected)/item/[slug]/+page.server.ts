@@ -22,10 +22,11 @@ export const load: PageServerLoad = async ({ params }: any) => {
 		headers: getHeaders()
 	});
 	item = await res.json();
+	const { imageUrl, price, itemId } = item;
 	form.data = {
-		url: item.imageUrl,
-		price: item.price.toString(),
-		itemId: item.itemId.toString()
+		url: imageUrl,
+		price: price.toString(),
+		itemId: itemId.toString()
 	};
 	return {
 		id,
@@ -43,10 +44,11 @@ export const actions: Actions = {
 				form
 			});
 		}
+		const { price, itemId } = form.data;
 		const updateItem: string = JSON.stringify({
 			imageUrl: url,
-			price: form.data.price,
-			itemId: form.data.itemId
+			price,
+			itemId
 		});
 		const res: Response = await fetch(clubURL + '/v1/admin/items/' + item.id, {
 			method: 'PUT',

@@ -15,17 +15,18 @@ export type Notice = {
 let notice: Notice;
 
 export const load: PageServerLoad = async ({ params }: any) => {
-	const id: string = params.slug;
+	const noticeId: string = params.slug;
 	const form = await superValidate(noticeSchema);
-	const res: Response = await fetch(clubURL + '/v1/admin/notices/' + id, {
+	const res: Response = await fetch(clubURL + '/v1/admin/notices/' + noticeId, {
 		method: 'GET',
 		headers: getHeaders()
 	});
 	notice = await res.json();
+	const { id, title, content, createDate, updateDate } = notice;
 	form.data = {
-		id: notice.id,
-		title: notice.title,
-		content: notice.content,
+		id,
+		title,
+		content,
 		createDate: new Date(notice.createDate).toJSON().slice(0, 19),
 		updateDate: new Date(notice.updateDate).toJSON().slice(0, 19)
 	};
@@ -45,8 +46,8 @@ export const actions: Actions = {
 		}
 		const { title, content } = form.data;
 		const updateNotice: string = JSON.stringify({
-			title: title,
-			content: content
+			title,
+			content
 		});
 		const res: Response = await fetch(clubURL + '/v1/admin/notices/' + notice.id, {
 			method: 'PUT',

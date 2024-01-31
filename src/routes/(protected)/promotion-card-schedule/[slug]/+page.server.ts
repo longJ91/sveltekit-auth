@@ -36,19 +36,33 @@ export const load: PageServerLoad = async ({ params }: any) => {
 		headers: getHeaders()
 	});
 	promotionCardSchdule = await res.json();
+	const {
+		countryCode,
+		type,
+		category,
+		title,
+		startDate,
+		endDate,
+		isDisplay,
+		linkUrl,
+		backgroundImageUrl,
+		symbolImageUrl,
+		pushType,
+		pushValue
+	} = promotionCardSchdule;
 	form.data = {
-		countryCode: promotionCardSchdule.countryCode,
-		type: promotionCardSchdule.type,
-		category: promotionCardSchdule.category,
-		title: promotionCardSchdule.title,
-		startDate: promotionCardSchdule.startDate,
-		endDate: promotionCardSchdule.endDate,
-		isDisplay: promotionCardSchdule.isDisplay,
-		linkUrl: promotionCardSchdule.linkUrl,
-		backgroundImageUrl: promotionCardSchdule.backgroundImageUrl,
-		symbolImageUrl: promotionCardSchdule.symbolImageUrl,
-		pushType: promotionCardSchdule.pushType,
-		pushValue: promotionCardSchdule.pushValue
+		countryCode,
+		type,
+		category,
+		title,
+		startDate,
+		endDate,
+		isDisplay,
+		linkUrl,
+		backgroundImageUrl,
+		symbolImageUrl,
+		pushType,
+		pushValue
 	};
 	return {
 		form,
@@ -65,19 +79,33 @@ export const actions: Actions = {
 				form
 			});
 		}
+		const {
+			countryCode,
+			type,
+			category,
+			title,
+			startDate,
+			endDate,
+			isDisplay,
+			linkUrl,
+			backgroundImageUrl,
+			symbolImageUrl,
+			pushType,
+			pushValue
+		} = form.data;
 		const updatePromotionCardSchedule: string = JSON.stringify({
-			countryCode: form.data.countryCode,
-			type: form.data.type,
-			category: form.data.category,
-			title: form.data.title,
-			startDate: form.data.startDate,
-			endDate: form.data.endDate,
-			isDisplay: form.data.isDisplay,
-			linkUrl: form.data.linkUrl,
-			backgroundImageUrl: form.data.backgroundImageUrl,
-			symbolImageUrl: form.data.symbolImageUrl,
-			pushType: form.data.pushType,
-			pushValue: form.data.pushValue
+			countryCode,
+			type,
+			category,
+			title,
+			startDate,
+			endDate,
+			isDisplay,
+			linkUrl,
+			backgroundImageUrl,
+			symbolImageUrl,
+			pushType,
+			pushValue
 		});
 		const res: Response = await fetch(
 			clubURL + '/v1/admin/promotion-card-schedules/' + promotionCardSchdule.id,

@@ -1,4 +1,9 @@
-import { clubURL, getHeaders } from '$lib/utils/request-util';
+import type { PageServerLoad, Actions } from '../$types';
+import type { Country } from '$lib/model/response-type';
+import { fail, redirect } from '@sveltejs/kit';
+import { superValidate } from 'sveltekit-superforms/server';
+import { clubEventSchema } from '$lib/config/zod-schemas';
+import { apiURL, clubURL, getHeaders } from '$lib/utils/request-util';
 
 export type ClubEvent = {
 	id: number;
@@ -6,11 +11,12 @@ export type ClubEvent = {
 	description: string;
 	gamecode: number;
 	shopType: number;
-	startDate: Date;
-	endDate: Date;
-	registerFrom: Date;
-	registerTo: Date;
+	startDate: string;
+	endDate: string;
+	registerFrom: string;
+	registerTo: string;
 	useYn: string;
+	body: string;
 	createDate: Date;
 	updateDate: Date;
 	countries: Array<ClubEventCountry>;
@@ -25,56 +31,99 @@ type ClubEventCountry = {
 };
 
 let clubEvent: ClubEvent;
+let countryGroup: Array<Country>;
 
-export const load = async ({ params }: any) => {
-	const id: string = params.slug;
-	const res: Response = await fetch(clubURL + '/v1/admin/club-events/' + id, {
+export const load: PageServerLoad = async ({ params }: any) => {
+	const clubEventId: string = params.slug;
+	const form = await superValidate(clubEventSchema);
+	const res: Response = await fetch(clubURL + '/v1/admin/club-events/' + clubEventId, {
 		method: 'GET',
 		headers: getHeaders()
 	});
 	clubEvent = await res.json();
-	let countryCodes = '';
-	clubEvent.countries.forEach((clubEventCountry) => {
-		if (countryCodes.length == 0) countryCodes = clubEventCountry.countryCode;
-		else countryCodes = countryCodes.concat(',', clubEventCountry.countryCode);
+	const countriesResponse: Response = await fetch(apiURL + '/v1/countries', {
+		method: 'GET',
+		headers: getHeaders()
 	});
-
-	console.log(clubEvent.createDate);
+	countryGroup = await countriesResponse.json();
+	const {
+		id,
+		name,
+		description,
+		gamecode,
+		shopType,
+		startDate,
+		endDate,
+		registerFrom,
+		registerTo,
+		useYn,
+		body,
+		createDate,
+		updateDate,
+		countries
+	} = clubEvent;
+	let checkedCountries = '';
+	countries.forEach((c) => {
+		if (checkedCountries.length == 0) checkedCountries = c.countryCode;
+		else checkedCountries = checkedCountries.concat(',', c.countryCode);
+	});
+	form.data = {
+		id,
+		name,
+		description,
+		gamecode,
+		shopType: shopType === 0 ? 'General' : 'Part Time',
+		startDate,
+		endDate,
+		registerFrom,
+		registerTo,
+		useYn: useYn === 'Y',
+		body,
+		createDate: new Date(createDate).toJSON().slice(0, 19),
+		updateDate: new Date(updateDate).toJSON().slice(0, 19)
+	};
 
 	return {
-		id,
-		clubEvent,
-		countryCodes
+		form,
+		countryGroup,
+		checkedCountries
 	};
 };
 
-export const actions = {
+export const actions: Actions = {
 	default: async ({ cookies, request }: any) => {
-		const data = await request.formData();
-
-		const name = data.get('name');
-		const description = data.get('description');
-		const shopType =
-			data.get('shop-type-radio-0') == null
-				? data.get('shop-type-radio-1')
-				: data.get('shop-type-radio-0');
-		const startDate = data.get('start-date');
-		const endDate = data.get('end-date');
-		const registerFrom = data.get('register-from');
-		const registerTo = data.get('register-to');
-		const useYn = data.get('use-y-n') == null ? 'N' : data.get('use-y-n');
-		const countryCodes = data.get('countryCodes').split(',');
-
+		const formData = await request.formData();
+		const form = await superValidate(formData, clubEventSchema);
+		const countryCodes: Array<string> = countryGroup
+			.map((c) => c.code)
+			.filter((code) => formData.get(code));
+		if (!form.valid) {
+			return fail(400, {
+				form
+			});
+		}
+		const {
+			name,
+			description,
+			shopType,
+			startDate,
+			endDate,
+			registerFrom,
+			registerTo,
+			useYn,
+			body
+		} = form.data;
 		const updateClubEvents: string = JSON.stringify({
-			name: name,
-			description: description,
-			shopType: shopType,
-			startDate: startDate,
-			endDate: endDate,
-			registerFrom: registerFrom,
-			registerTo: registerTo,
-			useYn: useYn,
-			countryCodes: countryCodes
+			name,
+			description,
+			shopType: shopType === 'General' ? 0 : 1,
+			startDate,
+			endDate,
+			registerFrom,
+			registerTo,
+			useYn: useYn ? 'Y' : 'N',
+			body,
+			countryCodes
 		});
 
 		const res: Response = await fetch(clubURL + '/v1/admin/club-events/' + clubEvent.id, {
@@ -83,6 +132,6 @@ export const actions = {
 			body: updateClubEvents
 		});
 		await res.json();
-		return { success: true };
+		redirect(302, `/club-event`);
 	}
 };

@@ -28,19 +28,33 @@ export const actions: Actions = {
 				form
 			});
 		}
+		const {
+			countryCode,
+			type,
+			category,
+			title,
+			startDate,
+			endDate,
+			isDisplay,
+			linkUrl,
+			backgroundImageUrl,
+			symbolImageUrl,
+			pushType,
+			pushValue
+		} = form.data;
 		const createPromotinCard: string = JSON.stringify({
-			countryCode: form.data.countryCode,
-			type: form.data.type,
-			category: form.data.category,
-			title: form.data.title,
-			startDate: form.data.startDate,
-			endDate: form.data.endDate,
-			isDisplay: form.data.isDisplay,
-			linkUrl: form.data.linkUrl,
-			backgroundImageUrl: form.data.backgroundImageUrl,
-			symbolImageUrl: form.data.symbolImageUrl,
-			pushType: form.data.pushType,
-			pushValue: form.data.pushValue
+			countryCode,
+			type,
+			category,
+			title,
+			startDate,
+			endDate,
+			isDisplay,
+			linkUrl,
+			backgroundImageUrl,
+			symbolImageUrl,
+			pushType,
+			pushValue
 		});
 		const res: Response = await fetch(clubURL + '/v1/admin/promotion-card-schedules', {
 			method: 'POST',

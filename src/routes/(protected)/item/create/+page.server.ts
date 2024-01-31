@@ -22,10 +22,11 @@ export const actions: Actions = {
 				form
 			});
 		}
+		const { price, itemId } = form.data;
 		const createItem: string = JSON.stringify({
 			imageUrl: url,
-			price: form.data.price,
-			itemId: form.data.itemId
+			price,
+			itemId
 		});
 		const res: Response = await fetch(clubURL + '/v1/admin/items', {
 			method: 'POST',
