@@ -11,7 +11,8 @@
 	export let form: SuperValidated<ClubEventSchema>;
 	export let button: string;
 	export let countryGroup: Array<Country>;
-	export let checkedCountries: string;
+	export let checkedCountries: string = '';
+
 	const shopTypeGroup: Array<string> = ['General', 'Part Time'];
 </script>
 

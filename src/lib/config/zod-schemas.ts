@@ -140,7 +140,7 @@ export const clubEventSchema = z.object({
 	id: z.number(),
 	name: z.string(),
 	description: z.string(),
-	gamecode: z.number(),
+	gamecode: z.string(),
 	shopType: z.string(),
 	startDate: z.string(),
 	endDate: z.string(),

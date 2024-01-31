@@ -1,4 +1,9 @@
-import { clubURL, getHeaders } from '$lib/utils/request-util';
+import type { Country } from '$lib/model/response-type';
+import type { PageServerLoad, Actions } from '../$types';
+import { fail, redirect } from '@sveltejs/kit';
+import { superValidate } from 'sveltekit-superforms/server';
+import { clubEventSchema } from '$lib/config/zod-schemas';
+import { apiURL, clubURL, getHeaders } from '$lib/utils/request-util';
 
 export type ClubEvent = {
 	id: number;
@@ -24,34 +29,54 @@ type ClubEventCountry = {
 	updateDate: Date;
 };
 
-export const load = async ({ params }: any) => {};
+let countryGroup: Array<Country>;
 
-export const actions = {
+export const load: PageServerLoad = async ({ params }: any) => {
+	const countriesResponse: Response = await fetch(apiURL + '/v1/countries', {
+		method: 'GET',
+		headers: getHeaders()
+	});
+	countryGroup = await countriesResponse.json();
+	return {
+		form: await superValidate(clubEventSchema),
+		countryGroup
+	};
+};
+
+export const actions: Actions = {
 	default: async ({ cookies, request }: any) => {
-		const data = await request.formData();
-		const name = data.get('name');
-		const description = data.get('description');
-		const shopType =
-			data.get('shop-type-radio-0') == null
-				? data.get('shop-type-radio-1')
-				: data.get('shop-type-radio-0');
-		const startDate = data.get('start-date');
-		const endDate = data.get('end-date');
-		const registerFrom = data.get('register-from');
-		const registerTo = data.get('register-to');
-		const useYn = data.get('use-y-n') == null ? 'N' : data.get('use-y-n');
-		const countryCodes = data.get('countryCodes').split(',');
-
+		const formData = await request.formData();
+		const form = await superValidate(formData, clubEventSchema);
+		const countryCodes: Array<string> = countryGroup
+			.map((c) => c.code)
+			.filter((code) => formData.get(code));
+		if (!form.valid) {
+			return fail(400, {
+				form
+			});
+		}
+		const {
+			name,
+			description,
+			shopType,
+			startDate,
+			endDate,
+			registerFrom,
+			registerTo,
+			useYn,
+			body
+		} = form.data;
 		const createClubEvent: string = JSON.stringify({
-			name: name,
-			description: description,
-			shopType: shopType,
-			startDate: startDate,
-			endDate: endDate,
-			registerFrom: registerFrom,
-			registerTo: registerTo,
-			useYn: useYn,
-			countryCodes: countryCodes
+			name,
+			description,
+			shopType: shopType === 'General' ? 0 : 1,
+			startDate,
+			endDate,
+			registerFrom,
+			registerTo,
+			useYn: useYn ? 'Y' : 'N',
+			body,
+			countryCodes
 		});
 
 		const res: Response = await fetch(clubURL + '/v1/admin/club-events', {
@@ -60,6 +85,6 @@ export const actions = {
 			body: createClubEvent
 		});
 		await res.json();
-		return { success: true };
+		redirect(302, `/club-event`);
 	}
 };

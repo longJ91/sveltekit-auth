@@ -71,7 +71,7 @@ export const load: PageServerLoad = async ({ params }: any) => {
 		id,
 		name,
 		description,
-		gamecode,
+		gamecode: gamecode.toString(),
 		shopType: shopType === 0 ? 'General' : 'Part Time',
 		startDate,
 		endDate,
