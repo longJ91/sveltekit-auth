@@ -1,234 +1,370 @@
 <script lang="ts">
-	import { goto, invalidateAll } from '$app/navigation';
-	import type { PageData } from './$types';
+	import { createTable, Subscribe, Render, createRender } from 'svelte-headless-table';
+	import {
+		addSortBy,
+		addPagination,
+		addTableFilter,
+		addSelectedRows,
+		addHiddenColumns
+	} from 'svelte-headless-table/plugins';
+	import { readable } from 'svelte/store';
+	import * as Table from '$lib/components/ui/table';
+	import Actions from '$lib/components/table/data-table-actions.svelte';
+	import { Button } from '$lib/components/ui/button';
+	import * as DropdownMenu from '$lib/components/ui/dropdown-menu';
+	import { cn } from '$lib/utils';
+	import { ArrowUpDown, ChevronDown, ChevronLeft, ChevronRight } from 'lucide-svelte';
+	import * as Pagination from '$lib/components/ui/pagination';
+	import type { ClubEvent } from './[slug]/+page.server';
+	import { goto } from '$app/navigation';
+	import { mediaQuery } from 'svelte-legos';
 
-	export let data: PageData;
+	const isDesktop = mediaQuery('(min-width: 768px)');
 
-	let pages: Array<number> = [];
+	export let data: any;
 
-	for (let i = 0; i < data.clubEventInfoResponse.totalPage; i++) {
-		pages.push(i + 1);
-	}
+	const clubEvents: ClubEvent[] = data.clubEventInfoResponse.clubEvents;
 
-	const windowSize = data.clubEventInfoResponse.windowSize;
+	$: count = data.clubEventInfoResponse.totalCount;
+	$: page = 1;
+	$: siblingCount = $isDesktop ? 1 : 0;
 
-	$: previousPage =
-		data.clubEventInfoResponse.currentPage < 2 ? 1 : data.clubEventInfoResponse.currentPage - 1;
-	$: nextPage =
-		data.clubEventInfoResponse.currentPage >= data.clubEventInfoResponse.totalPage
-			? data.clubEventInfoResponse.totalPage
-			: data.clubEventInfoResponse.currentPage + 1;
-	$: showingFirstIndex = 1 + (data.clubEventInfoResponse.currentPage - 1) * windowSize;
-	$: showingLastIndex =
-		data.clubEventInfoResponse.currentPage == data.clubEventInfoResponse.totalPage
-			? data.clubEventInfoResponse.totalCount
-			: data.clubEventInfoResponse.currentPage * windowSize;
+	const table = createTable(readable(clubEvents), {
+		sort: addSortBy({ disableMultiSort: true }),
+		page: addPagination({ initialPageIndex: 0, initialPageSize: 2 }),
+		filter: addTableFilter({
+			fn: ({ filterValue, value }) => value.includes(filterValue)
+		}),
+		select: addSelectedRows(),
+		hide: addHiddenColumns()
+	});
+
+	const columns = table.createColumns([
+		table.column({
+			header: 'ID',
+			accessor: 'id',
+			plugins: { sort: { disable: true }, filter: { exclude: true } }
+		}),
+		table.column({
+			header: 'Name',
+			accessor: 'name',
+			plugins: { sort: { disable: true }, filter: { exclude: true } }
+		}),
+		table.column({
+			header: 'Description',
+			accessor: 'description',
+			plugins: { sort: { disable: true }, filter: { exclude: true } }
+		}),
+		table.column({
+			header: 'Gamecode',
+			accessor: 'gamecode',
+			plugins: { sort: { disable: true }, filter: { exclude: true } }
+		}),
+		table.column({
+			header: 'Shop Type',
+			accessor: 'shopType',
+			cell: ({ value }) => (value === 0 ? 'General' : 'Part Time'),
+			plugins: { sort: { disable: true }, filter: { exclude: true } }
+		}),
+		table.column({
+			header: 'Use',
+			accessor: 'useYn',
+			plugins: { sort: { disable: true }, filter: { exclude: true } }
+		}),
+		table.column({
+			header: 'Register From',
+			accessor: 'registerFrom',
+			cell: ({ value }) => new Date(value).toLocaleString(),
+			plugins: {
+				sort: {
+					disable: true
+				},
+				filter: {
+					exclude: false
+				}
+			}
+		}),
+		table.column({
+			header: 'Register To',
+			accessor: 'registerTo',
+			cell: ({ value }) => new Date(value).toLocaleString(),
+			plugins: {
+				sort: {
+					disable: true
+				},
+				filter: {
+					exclude: false
+				}
+			}
+		}),
+		table.column({
+			header: 'Start Date',
+			accessor: 'startDate',
+			cell: ({ value }) => new Date(value).toLocaleString(),
+			plugins: {
+				sort: {
+					disable: true
+				},
+				filter: {
+					exclude: false
+				}
+			}
+		}),
+		table.column({
+			header: 'End Date',
+			accessor: 'endDate',
+			cell: ({ value }) => new Date(value).toLocaleString(),
+			plugins: {
+				sort: {
+					disable: true
+				},
+				filter: {
+					exclude: false
+				}
+			}
+		}),
+		// table.column({
+		// 	header: 'Create Date',
+		// 	accessor: 'createDate',
+		// 	cell: ({ value }) => new Date(value).toLocaleString(),
+		// 	plugins: {
+		// 		sort: {
+		// 			disable: true
+		// 		},
+		// 		filter: {
+		// 			exclude: false
+		// 		}
+		// 	}
+		// }),
+		// table.column({
+		// 	header: 'Update Date',
+		// 	accessor: 'updateDate',
+		// 	cell: ({ value }) => new Date(value).toLocaleString(),
+		// 	plugins: {
+		// 		sort: {
+		// 			disable: true
+		// 		},
+		// 		filter: {
+		// 			exclude: false
+		// 		}
+		// 	}
+		// }),
+		table.column({
+			header: 'Actions',
+			accessor: ({ id }) => id,
+			cell: (item) => {
+				return createRender(Actions, {
+					id: item.value.toString(),
+					name: 'club-event'
+				});
+			},
+			plugins: {
+				sort: {
+					disable: true
+				}
+			}
+		})
+	]);
+
+	const { headerRows, pageRows, tableAttrs, tableBodyAttrs, flatColumns, pluginStates, rows } =
+		table.createViewModel(columns);
+
+	const { sortKeys } = pluginStates.sort;
+
+	const { hiddenColumnIds } = pluginStates.hide;
+	const ids = flatColumns.map((c) => c.id);
+	let hideForId = Object.fromEntries(ids.map((id) => [id, true]));
+
+	$: $hiddenColumnIds = Object.entries(hideForId)
+		.filter(([, hide]) => !hide)
+		.map(([id]) => id);
+
+	const { hasNextPage, hasPreviousPage, pageIndex, pageSize } = pluginStates.page;
+	const { filterValue } = pluginStates.filter;
+
+	const { selectedDataIds } = pluginStates.select;
+
+	const hideableCols = [
+		'id',
+		'name',
+		'description',
+		'gamecode',
+		'shopType',
+		'startDate',
+		'endDate',
+		'registerFrom',
+		'registerTo',
+		'useYn',
+		// 'createDate',
+		// 'updateDate'
+	];
 </script>
 
-<div class="flex justify-center">
-	<h1
-		class="mb-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-5xl lg:text-6xl dark:text-white"
-	>
-		동호회 이벤트 관리
-	</h1>
-</div>
-
-<div class="flex justify-between pt-4">
-	<br />
-	<button
-		type="button"
-		class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
-		on:click={() => goto('/club-event/create', {
-			invalidateAll: true
-		})}>Create</button
-	>
-</div>
-
-<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-	<table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-		<thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-			<tr>
-				<th scope="col" class="px-6 py-3"> # </th>
-				<th scope="col" class="px-6 py-3"> Name </th>
-				<th scope="col" class="px-6 py-3"> Description </th>
-				<th scope="col" class="px-6 py-3"> Shop Type </th>
-				<th scope="col" class="px-6 py-3"> 시작 기간</th>
-				<th scope="col" class="px-6 py-3"> 등록 기간</th>
-				<th scope="col" class="px-6 py-3">
-					<div class="flex items-center">
-						Create Date
-						<!-- <svg
-							class="w-3 h-3 ms-1.5"
-							aria-hidden="true"
-							xmlns="http://www.w3.org/2000/svg"
-							fill="currentColor"
-							viewBox="0 0 24 24"
-						>
-							<path
-								d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z"
-							/>
-						</svg> -->
-					</div>
-				</th>
-				<th scope="col" class="px-6 py-3">
-					<div class="flex items-center">
-						Update Date
-						<!-- <svg
-							class="w-3 h-3 ms-1.5"
-							aria-hidden="true"
-							xmlns="http://www.w3.org/2000/svg"
-							fill="currentColor"
-							viewBox="0 0 24 24"
-						>
-							<path
-								d="M8.574 11.024h6.852a2.075 2.075 0 0 0 1.847-1.086 1.9 1.9 0 0 0-.11-1.986L13.736 2.9a2.122 2.122 0 0 0-3.472 0L6.837 7.952a1.9 1.9 0 0 0-.11 1.986 2.074 2.074 0 0 0 1.847 1.086Zm6.852 1.952H8.574a2.072 2.072 0 0 0-1.847 1.087 1.9 1.9 0 0 0 .11 1.985l3.426 5.05a2.123 2.123 0 0 0 3.472 0l3.427-5.05a1.9 1.9 0 0 0 .11-1.985 2.074 2.074 0 0 0-1.846-1.087Z"
-							/>
-						</svg> -->
-					</div>
-				</th>
-				<th scope="col" class="px-6 py-3"> Use</th>
-				<th scope="col" class="px-6 py-3">
-					<p class="text-center">Action</p>
-				</th>
-			</tr>
-		</thead>
-		<tbody>
-			{#await data}
-				<p>...Loading</p>
-			{:then data}
-				{#each data.clubEventInfoResponse.clubEvents as clubEvent, idx}
-					<tr
-						class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-					>
-						<th
-							scope="row"
-							class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
-						>
-							{idx + 1}
-						</th>
-						<td class="px-6 py-4"> {clubEvent.name} </td>
-						<td class="px-6 py-4"> {clubEvent.description} </td>
-						<td class="px-6 py-4"> {clubEvent.shopType == 0 ? '일반' : '시간제'} </td>
-						<td class="px-6 py-4">
-							{new Date(clubEvent.startDate).toLocaleString()} ~ {new Date(
-								clubEvent.endDate
-							).toLocaleString()}
-						</td>
-						<td class="px-6 py-4">
-							{new Date(clubEvent.registerFrom).toLocaleString()} ~ {new Date(
-								clubEvent.registerTo
-							).toLocaleString()}</td
-						>
-						<td class="px-6 py-4"> {new Date(clubEvent.createDate).toUTCString()} </td>
-						<td class="px-6 py-4"> {new Date(clubEvent.updateDate).toUTCString()} </td>
-						<td class="px-6 py-4"> {clubEvent.useYn} </td>
-						<td class="px-6 py-4 text-center">
-							<a
-								href="/club-event/{clubEvent.id}"
-								class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a
+<div class="w-9/12 container flex items-center space-x-4 sm:justify-between">
+	<div class="container">
+		<div class="flex justify-center text-6xl">
+			<p>Club Event</p>
+		</div>
+		<div class="flex items-center py-4">
+			<Button
+				class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+				variant="secondary"
+				on:click={() =>
+					goto('/club-event/create', {
+						invalidateAll: true
+					})}>Create</Button
+			>
+			<DropdownMenu.Root>
+				<DropdownMenu.Trigger asChild let:builder>
+					<Button variant="outline" class="ml-auto" builders={[builder]}>
+						Columns <ChevronDown class="ml-2 h-4 w-4" />
+					</Button>
+				</DropdownMenu.Trigger>
+				<DropdownMenu.Content>
+					{#each flatColumns as col}
+						{#if hideableCols.includes(col.id)}
+							<DropdownMenu.CheckboxItem bind:checked={hideForId[col.id]}>
+								{col.header}
+							</DropdownMenu.CheckboxItem>
+						{/if}
+					{/each}
+				</DropdownMenu.Content>
+			</DropdownMenu.Root>
+		</div>
+		<div class="rounded-md border">
+			<Table.Root {...$tableAttrs}>
+				<Table.Header>
+					{#each $headerRows as headerRow}
+						<Subscribe rowAttrs={headerRow.attrs()}>
+							<Table.Row>
+								{#each headerRow.cells as cell (cell.id)}
+									<Subscribe attrs={cell.attrs()} let:attrs props={cell.props()} let:props>
+										<Table.Head {...attrs} class={cn('[&:has([role=checkbox])]:pl-3')}>
+											{#if cell.id === '#'}
+												<div class="text-right font-medium">
+													<Render of={cell.render()} />
+												</div>
+											{:else}
+												<Render of={cell.render()} />
+											{/if}
+										</Table.Head>
+									</Subscribe>
+								{/each}
+							</Table.Row>
+						</Subscribe>
+					{/each}
+				</Table.Header>
+				<Table.Body {...$tableBodyAttrs}>
+					{#each $pageRows as row (row.id)}
+						<Subscribe rowAttrs={row.attrs()} let:rowAttrs>
+							<Table.Row {...rowAttrs} data-state={$selectedDataIds[row.id] && 'selected'}>
+								{#each row.cells as cell (cell.id)}
+									<Subscribe attrs={cell.attrs()} let:attrs>
+										<Table.Cell class="[&:has([role=checkbox])]:pl-3" {...attrs}>
+											<Render of={cell.render()} />
+										</Table.Cell>
+									</Subscribe>
+								{/each}
+							</Table.Row>
+						</Subscribe>
+					{/each}
+				</Table.Body>
+			</Table.Root>
+		</div>
+		<div class="flex space-x-2 py-4">
+			<div class="flex flex-row items-center space-x-4">
+				<p>Show</p>
+				<DropdownMenu.Root>
+					<DropdownMenu.Trigger asChild let:builder>
+						<Button variant="outline" class="ml-auto" builders={[builder]}>
+							{$pageSize}
+						</Button>
+					</DropdownMenu.Trigger>
+					<DropdownMenu.Content>
+						<DropdownMenu.RadioGroup>
+							<DropdownMenu.RadioItem
+								value="1"
+								on:click={() => {
+									$pageIndex = 0;
+									$pageSize = 1;
+								}}>1</DropdownMenu.RadioItem
 							>
-						</td>
-					</tr>
-				{/each}
-			{:catch error}
-				<p>오류가 발생했습니다.</p>
-			{/await}
-		</tbody>
-	</table>
-
-	<nav
-		class="flex items-center flex-column flex-wrap md:flex-row justify-between pt-4"
-		aria-label="Table navigation"
-	>
-		<span
-			class="text-sm font-normal text-gray-500 dark:text-gray-400 mb-4 md:mb-0 block w-full md:inline md:w-auto"
-			>Showing
-			{#if data.clubEventInfoResponse.totalCount < 1}
-				<span class="font-semibold text-gray-900 dark:text-white">0</span>
-			{:else}
-				<span class="font-semibold text-gray-900 dark:text-white"
-					>{showingFirstIndex}-{showingLastIndex}</span
-				>
-				of
-				<span class="font-semibold text-gray-900 dark:text-white"
-					>{data.clubEventInfoResponse.totalCount}</span
-				>
-			{/if}
-		</span>
-		<ul class="inline-flex -space-x-px rtl:space-x-reverse text-sm h-8">
-			<li>
-				<a
-					href="/club-event?page={previousPage}&windowSize={windowSize}"
-					class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-				>
-					<span class="sr-only">Previous</span>
-					<svg
-						class="w-2.5 h-2.5 rtl:rotate-180"
-						aria-hidden="true"
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 6 10"
-					>
-						<path
-							stroke="currentColor"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M5 1 1 5l4 4"
-						/>
-					</svg>
-				</a>
-			</li>
-
-			{#await data}
-				<p>...Loading</p>
-			{:then data}
-				{#each pages as page}
-					{#if page == data.clubEventInfoResponse.currentPage}
-						<li>
-							<a
-								href="/club-event?page={page}&windowSize={windowSize}"
-								class="z-10 flex items-center justify-center px-3 h-8 leading-tight text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-								>{page}</a
+							<DropdownMenu.RadioItem
+								value="2"
+								on:click={() => {
+									$pageIndex = 0;
+									$pageSize = 2;
+								}}>2</DropdownMenu.RadioItem
 							>
-						</li>
-					{:else}
-						<li>
-							<a
-								href="/club-event?page={page}&windowSize={windowSize}"
-								class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-								>{page}</a
+							<DropdownMenu.RadioItem
+								value="5"
+								on:click={() => {
+									$pageIndex = 0;
+									$pageSize = 5;
+								}}>5</DropdownMenu.RadioItem
 							>
-						</li>
-					{/if}
-				{/each}
-			{:catch error}
-				<p>오류가 발생했습니다.</p>
-			{/await}
-
-			<li>
-				<a
-					href="/club-event?page={nextPage}&windowSize={windowSize}"
-					class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+							<DropdownMenu.RadioItem
+								value="10"
+								on:click={() => {
+									$pageIndex = 0;
+									$pageSize = 10;
+								}}>10</DropdownMenu.RadioItem
+							>
+							<DropdownMenu.RadioItem
+								value="20"
+								on:click={() => {
+									$pageIndex = 0;
+									$pageSize = 20;
+								}}>20</DropdownMenu.RadioItem
+							>
+						</DropdownMenu.RadioGroup>
+					</DropdownMenu.Content>
+				</DropdownMenu.Root>
+				<p>rows</p>
+			</div>
+			{#key $pageSize}
+				<Pagination.Root
+					class="items-end"
+					{count}
+					perPage={$pageSize}
+					{siblingCount}
+					{page}
+					let:pages
+					let:currentPage
 				>
-					<span class="sr-only">Next</span>
-					<svg
-						class="w-2.5 h-2.5 rtl:rotate-180"
-						aria-hidden="true"
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 6 10"
-					>
-						<path
-							stroke="currentColor"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="m1 9 4-4-4-4"
-						/>
-					</svg>
-				</a>
-			</li>
-		</ul>
-	</nav>
+					<Pagination.Content>
+						<Pagination.Item>
+							<Pagination.PrevButton on:click={() => ($pageIndex = $pageIndex - 1)}>
+								<ChevronLeft class="h-4 w-4" />
+								<span class="hidden sm:block">Previous</span>
+							</Pagination.PrevButton>
+						</Pagination.Item>
+						{#each pages as page (page.key)}
+							{#if page.type === 'ellipsis'}
+								<Pagination.Item>
+									<Pagination.Ellipsis />
+								</Pagination.Item>
+							{:else}
+								<Pagination.Item>
+									<Pagination.Link
+										{page}
+										isActive={currentPage == page.value}
+										on:click={() => ($pageIndex = page.value - 1)}
+									>
+										{page.value}
+									</Pagination.Link>
+								</Pagination.Item>
+							{/if}
+						{/each}
+						<Pagination.Item>
+							<Pagination.NextButton on:click={() => ($pageIndex = $pageIndex + 1)}>
+								<span class="hidden sm:block">Next</span>
+								<ChevronRight class="h-4 w-4" />
+							</Pagination.NextButton>
+						</Pagination.Item>
+					</Pagination.Content>
+				</Pagination.Root>
+			{/key}
+		</div>
+	</div>
 </div>
