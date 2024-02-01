@@ -9,6 +9,14 @@ type Area = {
 	parentCode?: string;
 };
 
+type Exposure = {
+	id: number;
+	countryGroup: Array<Country>;
+	cityAreaGroup: Array<Area>;
+	districtAreaGroup: Array<Area>;
+	userClass: string;
+};
+
 type BannerExposure = {
 	id?: number;
 	bannerId?: number;
@@ -22,7 +30,7 @@ type Banner = {
 	id: number;
 	thumbnailUrl: string;
 	linkUrl: string;
-	status: string;
+	status: 'ON' | 'OFF';
 	sequence: number;
 	createDate: Date;
 	updateDate: Date;
@@ -37,4 +45,4 @@ type BannerInfo = {
 	windowSize: number;
 };
 
-export type { Country, Area, BannerExposure, Banner, BannerInfo };
+export type { Country, Area, Exposure, BannerExposure, Banner, BannerInfo };

@@ -65,14 +65,16 @@ export const bannerExposureSchema = z.object({
 });
 
 export const bannerSchema = z.object({
-	id: z.number(),
+	id: z.number().optional(),
 	thumbnailUrl: z.string(),
 	linkUrl: z.string(),
-	status: z.enum(['ON', 'OFF'], { required_error: 'Status is required' }),
+	status: z.boolean(),
 	sequence: z.number(),
-	bannerExposures: z.array(bannerExposureSchema, {
-		errorMap: () => ({ message: 'You must add the exposure' })
-	})
+	createDate: z.string(),
+	updateDate: z.string(),
+	// bannerExposures: z.array(bannerExposureSchema, {
+	// 	errorMap: () => ({ message: 'You must add the exposure' })
+	// }).optional()
 });
 
 export type BannerSchema = typeof bannerSchema;
@@ -86,7 +88,7 @@ export const itemSchema = z.object({
 export type ItemSchema = typeof itemSchema;
 
 export const promotionCardScheduleSchema = z.object({
-	// id: z.number(),
+	id: z.number(),
 	countryCode: z.string({ required_error: 'Country Code is required' }),
 	type: z.enum(['EVENT', 'COMPETITION'], { required_error: 'Type is required' }),
 	category: z.string({ required_error: 'Category is required' }),
@@ -151,7 +153,7 @@ export const clubEventSchema = z.object({
 	// ISO8601 Date
 	createDate: z.string(),
 	// ISO8601 Date
-	updateDate: z.string(),
+	updateDate: z.string()
 	// countries: z.array(clubEventCountry)
 });
 

@@ -13,18 +13,20 @@
 
 <!-- bind <-> {form} 차이는 상위 컴포넌트에서 공유를 하는지 여부가 다름 -->
 <Form.Root method="POST" {form} schema={itemSchema} let:config class="w-2/3 space-y-6">
-	<Form.Field {config} name="url">
-		<Form.Item>
-			<Form.Label>Image URL</Form.Label>
-			<Form.Input type="string" value={form.data.url} />
-			<img src={form.data.url} alt="" />
-			<Form.Description>{form.data.url ? 'Uploaded image' : 'No image'}</Form.Description>
-			<Form.Validation />
-		</Form.Item>
-	</Form.Field>
-	<ImageUploadDialog bind:url={form.data.url} {serviceType} />
-	<!-- TODO Form.Root 처음 bind 되느 {form} 업데이트 하는 방법 찾으면 아래 hidden url input tag 삭제 -->
-	<input type="text" id="url" name="url" class="hidden" bind:value={form.data.url} />
+	<div>
+		<Form.Field {config} name="url">
+			<Form.Item>
+				<Form.Label>Image URL</Form.Label>
+				<Form.Input type="string" value={form.data.url} />
+				<img src={form.data.url} alt="" />
+				<Form.Description>{form.data.url ? 'Uploaded image' : 'No image'}</Form.Description>
+				<Form.Validation />
+			</Form.Item>
+		</Form.Field>
+		<ImageUploadDialog bind:url={form.data.url} {serviceType} />
+		<!-- TODO Form.Root 처음 bind 되느 {form} 업데이트 하는 방법 찾으면 아래 hidden url input tag 삭제 -->
+		<input type="text" id="url" name="url" class="hidden" bind:value={form.data.url} />
+	</div>
 	<Form.Field {config} name="price">
 		<Form.Item>
 			<Form.Label>Price</Form.Label>

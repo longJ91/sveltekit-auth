@@ -1,32 +1,38 @@
-import type { Banner, BannerExposure, Country, Area } from '$lib/model/response-type';
+import type { PageServerLoad, Actions } from '../$types';
+import type { Banner, BannerExposure, Country, Area, Exposure } from '$lib/model/response-type';
+import { fail, redirect } from '@sveltejs/kit';
+import { superValidate } from 'sveltekit-superforms/server';
+import { bannerSchema } from '$lib/config/zod-schemas';
 import { apiURL, clubURL, getHeaders } from '$lib/utils/request-util';
-
-type Exposure = {
-	id: number;
-	countyGroup: Array<Country>;
-	cityAreaGroup: Array<Area>;
-	districtAreaGroup: Array<Area>;
-	userClass: string;
-};
 
 let banner: Banner;
 let exposureGroup: Array<Exposure>;
 
-export const load = async ({ params }: any) => {
-	const id: string = params.slug;
-	const res: Response = await fetch(clubURL + '/v1/admin/banners/' + id, {
+export const load: PageServerLoad = async ({ params }: any) => {
+	const bannerId: string = params.slug;
+	const form = await superValidate(bannerSchema);
+	const res: Response = await fetch(clubURL + '/v1/admin/banners/' + bannerId, {
 		method: 'GET',
 		headers: getHeaders()
 	});
 	banner = await res.json();
+	const { id, thumbnailUrl, linkUrl, status, sequence, createDate, updateDate, bannerExposures } =
+		banner;
+	form.data = {
+		id,
+		thumbnailUrl,
+		linkUrl,
+		status: status == 'ON',
+		sequence,
+		createDate: new Date(createDate).toJSON().slice(0, 19),
+		updateDate: new Date(updateDate).toJSON().slice(0, 19)
+	};
 
 	const countriesResponse: Response = await fetch(apiURL + '/v1/countries', {
 		method: 'GET',
 		headers: getHeaders()
 	});
-
-	const countries: Array<Country> = await countriesResponse.json();
-
+	const countryGroup: Array<Country> = await countriesResponse.json();
 	const fetchCityAreas = async (idx: number, countryCode?: string) => {
 		const response: Response = await fetch(apiURL + '/v1/areas?countryCode=' + countryCode, {
 			method: 'GET',
@@ -36,7 +42,6 @@ export const load = async ({ params }: any) => {
 		exposureGroup[idx].cityAreaGroup = [...result];
 		exposureGroup = exposureGroup.with(idx, exposureGroup[idx]);
 	};
-
 	const fetchDistirctAraes = async (idx: number, arae: Area) => {
 		const response: Response = await fetch(
 			apiURL + '/v1/areas?countryCode=' + arae.parentCode + '&areaCode=' + arae.code,
@@ -49,46 +54,56 @@ export const load = async ({ params }: any) => {
 		exposureGroup[idx].districtAreaGroup = [...result];
 		exposureGroup = exposureGroup.with(idx, exposureGroup[idx]);
 	};
+
 	for (let index = 0; index < banner.bannerExposures.length; index++) {
 		if (index == 0) exposureGroup = [];
 		exposureGroup = exposureGroup.concat({
 			id: index,
-			countyGroup: countries,
+			countryGroup,
 			cityAreaGroup: [],
 			districtAreaGroup: [],
 			userClass: banner.bannerExposures[index].userClass!
 		});
-		await fetchCityAreas(index, banner.bannerExposures[index].countryCode);
-		const area: Area = {
-			code: banner.bannerExposures[index].cityAreaCode,
-			name: '',
-			parentCode: banner.bannerExposures[index].countryCode
-		};
-		await fetchDistirctAraes(index, area);
+		if (banner.bannerExposures[index].countryCode) {
+			await fetchCityAreas(index, banner.bannerExposures[index].countryCode);
+			if (banner.bannerExposures[index].cityAreaCode) {
+				const area: Area = {
+					code: banner.bannerExposures[index].cityAreaCode,
+					name: '',
+					parentCode: banner.bannerExposures[index].countryCode
+				};
+				await fetchDistirctAraes(index, area);
+			}
+		}
 	}
 	return {
-		id,
-		banner,
-		countries,
+		form,
+		bannerExposures,
+		countryGroup,
 		exposureGroup
 	};
 };
 
-export const actions = {
+export const actions: Actions = {
 	default: async ({ cookies, request }: any) => {
-		const data = await request.formData();
-		const thumbnailUrl = data.get('thumbnail-url');
-		const linkUrl = data.get('link-url');
-		const status = data.get('status');
-		const exposureCount = data.get('banner-exposure-count');
+		console.log(request);
+		const formData = await request.formData();
+		const form = await superValidate(formData, bannerSchema);
+		const exposureCount = formData.get('banner-exposure-count');
 
+		if (!form.valid) {
+			return fail(400, {
+				form
+			});
+		}
+
+		const { thumbnailUrl, linkUrl, status } = form.data;
 		let bannerExposures: Array<BannerExposure> = [];
-
 		for (let idx = 0; idx < exposureCount; idx++) {
-			const conturyCode: string | undefined = data.get(idx + '-country-code');
-			const cityAreaCode: string | undefined = data.get(idx + '-city-area-code');
-			const districtAreaCode: string | undefined = data.get(idx + '-district-area-code');
-			const userClass: string | undefined = data.get(idx + '-user-class');
+			const conturyCode: string | undefined = formData.get(idx + '-country-code');
+			const cityAreaCode: string | undefined = formData.get(idx + '-city-area-code');
+			const districtAreaCode: string | undefined = formData.get(idx + '-district-area-code');
+			const userClass: string | undefined = formData.get(idx + '-user-class');
 
 			let bannerExposure: BannerExposure = {};
 
@@ -109,20 +124,18 @@ export const actions = {
 			}
 			bannerExposures.push(bannerExposure);
 		}
-
 		const updateBanners: string = JSON.stringify({
-			thumbnailUrl: thumbnailUrl,
-			linkUrl: linkUrl,
-			status: status,
-			bannerExposures: bannerExposures
+			thumbnailUrl,
+			linkUrl,
+			status: status ? 'ON' : 'OFF',
+			bannerExposures
 		});
-
 		const res: Response = await fetch(clubURL + '/v1/admin/banners/' + banner.id, {
 			method: 'PUT',
 			headers: getHeaders(),
 			body: updateBanners
 		});
 		await res.json();
-		return { success: true };
+		redirect(302, `/banner`);
 	}
 };
