@@ -33,7 +33,7 @@
 
 	const table = createTable(readable(notices), {
 		sort: addSortBy({ disableMultiSort: true }),
-		page: addPagination({ initialPageIndex: 0, initialPageSize: 2 }),
+		page: addPagination({ initialPageIndex: 0, initialPageSize: 10 }),
 		filter: addTableFilter({
 			fn: ({ filterValue, value }) => value.includes(filterValue)
 		}),
