@@ -1,11 +1,10 @@
-import type { BannerInfo } from '$lib/model/response-type';
+import type { BannerInfoResponse } from '$lib/model/response-type';
 import { clubURL, getHeaders } from '$lib/utils/request-util';
-
-let bannerInfo: BannerInfo;
 
 export const load = async ({ url }: any) => {
 	const page: string | undefined = url.searchParams.get('page');
-	const windowSize: string | undefined = url.searchParams.get('windowSize');
+	// const windowSize: string | undefined = url.searchParams.get('windowSize');
+	const windowSize: number = 9999;
 	const status: string | undefined = url.searchParams.get('status');
 	const createDate: string | undefined = url.searchParams.get('createDate');
 	let queryParams: string = '?';
@@ -18,9 +17,9 @@ export const load = async ({ url }: any) => {
 		method: 'GET',
 		headers: getHeaders()
 	});
-	bannerInfo = await res.json();
+	const item: BannerInfoResponse = await res.json();
 
 	return {
-		bannerInfo: bannerInfo
+		bannerInfoResponse: item
 	};
 };

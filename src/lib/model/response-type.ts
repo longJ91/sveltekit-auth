@@ -37,7 +37,7 @@ type Banner = {
 	bannerExposures: Array<BannerExposure>;
 };
 
-type BannerInfo = {
+type BannerInfoResponse = {
 	banners: Array<Banner>;
 	totalPage: number;
 	currentPage: number;
@@ -45,4 +45,4 @@ type BannerInfo = {
 	windowSize: number;
 };
 
-export type { Country, Area, Exposure, BannerExposure, Banner, BannerInfo };
+export type { Country, Area, Exposure, BannerExposure, Banner, BannerInfoResponse };
