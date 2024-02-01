@@ -126,7 +126,7 @@
 		<div class="flex items-center py-4">
 			<DropdownMenu.Root>
 				<DropdownMenu.Trigger asChild let:builder>
-					<Button variant="outline" class="ml-auto" builders={[builder]}>
+					<Button variant="outline" builders={[builder]}>
 						Columns <ChevronDown class="ml-2 h-4 w-4" />
 					</Button>
 				</DropdownMenu.Trigger>

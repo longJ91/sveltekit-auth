@@ -205,7 +205,23 @@
 		<div class="flex justify-center text-6xl">
 			<p>Club Event</p>
 		</div>
-		<div class="flex items-center py-4">
+		<div class="flex justify-between py-4">
+			<DropdownMenu.Root>
+				<DropdownMenu.Trigger asChild let:builder>
+					<Button variant="outline" builders={[builder]}>
+						Columns <ChevronDown class="ml-2 h-4 w-4" />
+					</Button>
+				</DropdownMenu.Trigger>
+				<DropdownMenu.Content>
+					{#each flatColumns as col}
+					{#if hideableCols.includes(col.id)}
+					<DropdownMenu.CheckboxItem bind:checked={hideForId[col.id]}>
+						{col.header}
+					</DropdownMenu.CheckboxItem>
+					{/if}
+					{/each}
+				</DropdownMenu.Content>
+			</DropdownMenu.Root>
 			<Button
 				class="focus:outline-none text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
 				variant="secondary"
@@ -214,22 +230,6 @@
 						invalidateAll: true
 					})}>Create</Button
 			>
-			<DropdownMenu.Root>
-				<DropdownMenu.Trigger asChild let:builder>
-					<Button variant="outline" class="ml-auto" builders={[builder]}>
-						Columns <ChevronDown class="ml-2 h-4 w-4" />
-					</Button>
-				</DropdownMenu.Trigger>
-				<DropdownMenu.Content>
-					{#each flatColumns as col}
-						{#if hideableCols.includes(col.id)}
-							<DropdownMenu.CheckboxItem bind:checked={hideForId[col.id]}>
-								{col.header}
-							</DropdownMenu.CheckboxItem>
-						{/if}
-					{/each}
-				</DropdownMenu.Content>
-			</DropdownMenu.Root>
 		</div>
 		<div class="rounded-md border">
 			<Table.Root {...$tableAttrs}>
