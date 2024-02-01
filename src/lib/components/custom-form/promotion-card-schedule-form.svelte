@@ -11,9 +11,20 @@
 	import ImageUploadDialog from '$lib/components/upload/common-image-upload-dialog.svelte';
 
 	export let form: SuperValidated<PromotionCardScheduleSchema>;
-	export let countries: Array<Country>;
+	export let countryGroup: Array<Country>;
 	export let button: string;
 	export let serviceType: string;
+
+	function selectedCountry() {
+		if (form.data.countryCode) {
+			const countryCode: string = form.data.countryCode!;
+			const name: string = countryGroup.filter((v) => v.code == countryCode).map((v) => v.name)[0];
+			return {
+				value: countryCode,
+				label: name
+			};
+		}
+	}
 </script>
 
 <!-- bind <-> {form} 차이는 상위 컴포넌트에서 공유를 하는지 여부가 다름 -->
@@ -27,10 +38,10 @@
 	<Form.Field {config} name="countryCode">
 		<Form.Item>
 			<Form.Label>Country Code</Form.Label>
-			<Form.Select>
+			<Form.Select selected={selectedCountry()}>
 				<Form.SelectTrigger placeholder="Select a country code" />
 				<Form.SelectContent>
-					{#each countries as country}
+					{#each countryGroup as country}
 						<Form.SelectItem value={country.code}>{country.name}</Form.SelectItem>
 					{/each}
 				</Form.SelectContent>

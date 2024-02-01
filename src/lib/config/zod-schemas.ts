@@ -88,7 +88,7 @@ export const itemSchema = z.object({
 export type ItemSchema = typeof itemSchema;
 
 export const promotionCardScheduleSchema = z.object({
-	id: z.number(),
+	id: z.number().optional(),
 	countryCode: z.string({ required_error: 'Country Code is required' }),
 	type: z.enum(['EVENT', 'COMPETITION'], { required_error: 'Type is required' }),
 	category: z.string({ required_error: 'Category is required' }),

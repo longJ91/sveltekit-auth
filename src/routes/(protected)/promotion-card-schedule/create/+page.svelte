@@ -11,5 +11,5 @@
 
 <div class="w-9/12 container flex flex-col items-center space-y-20 sm:justify-between">
 	<p class="text-5xl">Create Promotion Card Schedule</p>
-	<PromotionCardSchedulesForm {form} {countries} {serviceType} {button} />
+	<PromotionCardSchedulesForm {form} countryGroup={countries} {serviceType} {button} />
 </div>
