@@ -114,7 +114,7 @@
 			userClass: 'A,B,C,NONE'
 		});
 		exposureGroup = exposureGroup.concat({
-			id: exposureGroup[exposureGroup.length - 1].id + 1,
+			id: exposureGroup.length == 0 ? 0 : exposureGroup[exposureGroup.length - 1].id + 1,
 			countryGroup,
 			cityAreaGroup: [],
 			districtAreaGroup: [],

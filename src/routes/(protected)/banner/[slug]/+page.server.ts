@@ -86,7 +86,6 @@ export const load: PageServerLoad = async ({ params }: any) => {
 
 export const actions: Actions = {
 	default: async ({ cookies, request }: any) => {
-		console.log(request);
 		const formData = await request.formData();
 		const form = await superValidate(formData, bannerSchema);
 		const exposureCount = formData.get('banner-exposure-count');
