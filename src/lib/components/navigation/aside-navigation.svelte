@@ -13,7 +13,7 @@
 	$: currentPage = $page.url.pathname;
 </script>
 
-<aside class="-mx-4 lg:w-1/6 max-w-52 ">
+<aside class="-mx-4 my-4 lg:w-1/6 max-w-52 ">
 	<nav class="flex items-start space-x-2 lg:flex-col lg:space-x-4 lg:space-y-4 px-4">
 		<!-- svelte-ignore a11y-missing-attribute -->
 		<a

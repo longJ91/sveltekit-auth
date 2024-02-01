@@ -31,7 +31,7 @@
 <Toaster richColors />
 <div class="relative flex min-h-screen flex-col">
 	<HeaderNavigation {user} />
-	<div class="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0">
+	<div class="flex flex-col space-y-8 lg:flex-row lg:space-x-12 lg:space-y-0 divide-x">
 		<SideNavigation />
 		<div class="flex-1 w-1/6 pt-10">
 			<slot />
